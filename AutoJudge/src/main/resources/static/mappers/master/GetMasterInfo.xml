@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="GetMasterInfo">
+	<select id="getFactoryInfo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT FAB_ID
+	      FROM MAS_FAB_INF
+	</select>
+	
+	<select id="getAreaInfo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT AREA_ID
+	      FROM MAS_AREA_INF
+	     WHERE FAB_ID = #{FAB_ID}
+	</select>
+	
+	<select id="getEqpGrpInfo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT EQP_GRP
+	      FROM MAS_EQPGRP_INF
+	     WHERE FAB_ID = #{FAB_ID}
+	       AND AREA_ID = #{AREA_ID}
+	</select>
+	
+	<select id="getEqpInfo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT EQP_ID
+	      FROM MAS_EQP_INF
+	     WHERE FAB_ID = #{FAB_ID}
+	       AND AREA_ID = #{AREA_ID}
+	       AND EQP_GRP = #{EQP_GRP}
+	</select>
+</mapper>

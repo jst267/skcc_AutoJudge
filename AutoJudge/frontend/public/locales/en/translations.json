@@ -1,0 +1,23 @@
+{
+  "dashboard": {
+    "WELCOME": ""
+  },
+  "topbar": {
+    "search": {
+      "PLACEHOLDER": "Type and hit enter.."
+    }
+  },
+  "sidebar": {
+    "WELCOME": "Welcome",
+    "heading": {
+      "HEADER": "Main Navigation"
+    },
+    "nav": {
+      "DASHBOARD": "DashBoard",
+      "menu": {
+        "MENU": "Menu",
+        "SCENARIOSEARCH": "Scenario 조회"
+      }
+    }
+  }
+}
