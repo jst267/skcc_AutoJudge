@@ -13,10 +13,22 @@
       "HEADER": "Main Navigation"
     },
     "nav": {
-      "DASHBOARD": "DashBoard",
-      "menu": {
-        "MENU": "Menu",
-        "SCENARIOSEARCH": "Scenario 조회"
+      "SMenu": {
+        "SCENARIO": "시나리오",
+        "SCENARIOSEARCH": "Scenario 조회",
+        "SCENARIOPOOLMANAGEMENT": "Scenario Pool 관리",
+        "EQPALARMSCENARIOMAPPING": "Scenario 연결"
+      },
+      "AJMenu": {
+        "AUTOJUDGE": "Auto Judge",
+        "AUTOJUDGEMONITORING": "모니터링",
+        "JUDGECERTIFICATE": "판정근거"
+      },
+      "ADMINMenu": {
+        "ADMINMENU": "관리자 메뉴",
+        "ACTIVITYMANAGEMENT": "Action 관리",
+        "SCENARIOMANAGEMENT": "시나리오 생성",
+        "EQPSTATUSMANAGEMENT": "장비상태 관리"
       }
     }
   }

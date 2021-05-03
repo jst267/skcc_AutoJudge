@@ -26,7 +26,7 @@ const FaCard = ({icon}) => {
     )
 }
 
-class SubMenu extends Component {
+class SSearch extends Component {
 
     constructor(props, context) {
         super(props, context);
@@ -457,4 +457,4 @@ class SubMenu extends Component {
 
 }
 
-export default SubMenu;
+export default SSearch;

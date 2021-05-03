@@ -13,7 +13,17 @@ import BasePage from './components/Layout/BasePage';
 const waitFor = Tag => props => <Tag {...props}/>;
 
 const SingleView = lazy(() => import('./components/SingleView/SingleView'));
-const SubMenu = lazy(() => import('./components/SubMenu/SubMenu'));
+// const SubMenu = lazy(() => import('./components/SubMenu/SubMenu'));
+
+const ACTMgmt = lazy(() => import('./components/ADMINMenus/ACTMgmt'));
+const ESMgmt = lazy(() => import('./components/ADMINMenus/ESMgmt'));
+const SMgmt = lazy(() => import('./components/ADMINMenus/SMgmt'));
+const AJmntr = lazy(() => import('./components/AJMenus/AJMntr'));
+const AJCerti = lazy(() => import('./components/AJMenus/AJCerti'));
+const SMapping = lazy(() => import('./components/SMenus/SMapping'));
+const SPMgmt = lazy(() => import('./components/SMenus/SPMgmt'));
+const SSearch = lazy(() => import('./components/SMenus/SSearch'));
+
 
 // List of routes that uses the page layout
 // listed here to Switch between layouts
@@ -56,8 +66,14 @@ const Routes = ({ location }) => {
                         <Suspense fallback={<PageLoader/>}>
                             <Switch location={location}>
                                 <Route path="/singleview" component={waitFor(SingleView)}/>
-                                <Route path="/submenu" component={waitFor(SubMenu)}/>
-
+                                <Route path="/actmgmt" component={waitFor(ACTMgmt)}/>
+                                <Route path="/esmgmt" component={waitFor(ESMgmt)}/>
+                                <Route path="/smgmt" component={waitFor(SMgmt)}/>
+                                <Route path="/ajmntr" component={waitFor(AJmntr)}/>
+                                <Route path="/ajcerti" component={waitFor(AJCerti)}/>
+                                <Route path="/smapping" component={waitFor(SMapping)}/>
+                                <Route path="/spmgmt" component={waitFor(SPMgmt)}/>
+                                <Route path="/ssearch" component={waitFor(SSearch)}/>
                                 <Redirect to="/singleview"/>
                             </Switch>
                         </Suspense>
