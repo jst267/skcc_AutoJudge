@@ -61,28 +61,6 @@ public class MasterController {
 
 		return eqpgrp;
 	}
-		
-	@GetMapping("/getScenarioInfo")
-	@ResponseBody
-	public List<Map<String, Object>> getScenarioInfo() {
-				
-		//Map<String,Object> factory = factoryservice.getFactoryInfo();
-		
-		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
-		
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> map2 = new HashMap<String, Object>();
-		
-		map.put("ActivityNm", "FDC_JOB_A");
-		map.put("ActivityDesc", "FDC알람발생으로 인한 AutoJudge");
-		listMap.add(map);
-		
-		map.put("ActivityNm", "SPC_JOB_A");
-		map.put("ActivityDesc", "SPC알람발생으로 인한 AutoJudge");
-		listMap.add(map);
-		
-		return listMap;
-	}
 }
 
 
