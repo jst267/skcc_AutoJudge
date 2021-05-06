@@ -3,6 +3,7 @@ import ContentWrapper from '../Layout/ContentWrapper';
 import { Row, Col, Container, FormGroup, Card, CardHeader, CardTitle, CardBody, Button, ButtonGroup, ButtonToolbar, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 import ReactDataGrid from 'react-data-grid';
 import axios from 'axios';
+import Combo from '../Combo/Combo';
 import Swal from '../Elements/Swal';
 
 const CardWithHeader = props => (
@@ -47,7 +48,13 @@ class SSearch extends Component {
                 text: "조회조건을 확인해주세요",
                 icon: "warning"
             },
+
         };
+
+        this.comboRef_FAB = React.createRef()
+        this.comboRef_AREA = React.createRef()
+        this.comboRef_EQPGROUP = React.createRef()
+        this.comboRef_EQP = React.createRef()
 
         this.SCENARIO_LIST = [
             // {
@@ -215,146 +222,90 @@ class SSearch extends Component {
         this.setState({ rows });
     };
 
-    toggle= dd => {
-        this.setState({
-            [dd]: !this.state[dd]
-        })
-    }
+    handleSelect = (SelectedValue) =>  {
 
-    handleSelect_FAB = SelectedValue =>  {
-        this.setState({
-            BUTTONS_FAB : [SelectedValue.factory.FAB_ID]
-        })
-    }
+        let key = Object.keys(SelectedValue.data);
 
-    handleSelect_AREA = SelectedValue =>  {
-        this.setState({
-            BUTTONS_AREA : [SelectedValue.area.AREA_ID]
-        })
-    }
-
-    handleSelect_EQPGROUP = SelectedValue =>  {
-        this.setState({
-            BUTTONS_EQPGROUP : [SelectedValue.eqpgrp.EQP_GRP]
-        })
-    }
-
-    handleSelect_EQP = SelectedValue =>  {
-        this.setState({
-            BUTTONS_EQP : [SelectedValue.eqp.EQP_ID]
-        })
+        if(key == 'FAB_ID')
+        {
+            this.setState({
+                BUTTONS_FAB : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='AREA_ID')
+        {
+            this.setState({
+                BUTTONS_AREA : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='EQP_GRP')
+        {
+            this.setState({
+                BUTTONS_EQPGROUP : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='EQP_ID')
+        {
+            this.setState({
+                BUTTONS_EQP : [SelectedValue.data[key]]
+            })
+        }
     }
 
     //FAB Combo click
-    onClick_FAB = async () => {
-    	const response = await axios.get('http://localhost:8080/MasterInfo/getFactoryInfo')
-        this.setState({
-            factorys : response.data,
-            BUTTONS_AREA : ['none'],
-            BUTTONS_EQPGROUP : ['none'],
-        })
-    }
+    onClick = async (url) => {
+    	const response = await axios.get(url)
 
-    //Area Combo click
-    onClick_AREA = async () => {
-
-        if(this.state.BUTTONS_FAB == 'none')
+        if(url.includes('getFactory'))
         {
-            swal( this.state.swalOption3);
-        }
-        else
-        {
-            const response = await axios.get('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB)
+            this.comboRef_FAB.current.handleData(response);
             this.setState({
-                areas : response.data
+                BUTTONS_AREA : ['none'],
+                BUTTONS_EQPGROUP : ['none'],
+                BUTTONS_EQP : ['none'],
             })
         }
-    }
-
-    //EQPGRP Combo click
-    onClick_EQPGRP = async () => {
-
-        if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none')
+        else if(url.includes('getAreaInfo'))
         {
-            swal( this.state.swalOption3);
+            if(this.state.BUTTONS_FAB == 'none')
+            {
+                swal( this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_AREA.current.handleData(response);
+                this.setState({
+                    BUTTONS_EQPGROUP : ['none'],
+                    BUTTONS_EQP : ['none'],
+                })
+            }
         }
-        else
+        else if(url.includes('getEqpGrpInfo'))
         {
-            const response = await axios.get('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)
-            this.setState({
-                eqpgrps : response.data
-            })
+            if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none')
+            {
+                swal(this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_EQPGROUP.current.handleData(response);
+                this.setState({
+                    BUTTONS_EQP : ['none'],
+                })
+            }
         }
-    }
-
-    //EQP Combo click
-    onClick_EQP = async () => {
-        if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none' || this.state.BUTTONS_EQPGROUP == 'none')
+        else if(url.includes('getEqpInfo'))
         {
-            swal( this.state.swalOption3);
+            if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none' || this.state.BUTTONS_EQPGROUP == 'none')
+            {
+                swal( this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_EQP.current.handleData(response);
+            }
         }
-        else
-        {
-            const response = await axios.get('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
-                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)
-            this.setState({
-                eqps : response.data
-            })
-        }
-    }
 
-
-    renderDropdown_FAB = (title, i) => {
-
-        return (
-            <ButtonDropdown isOpen={this.state[`FAB${i}`]} toggle={() => this.toggle(`FAB${i}`)} key={ i } id={ `dropdown-FAB-${i}`} onClick={this.onClick_FAB} >
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                  {this.state.factorys.map((factory,index) => (<DropdownItem autosize={false} key={index} onClick={() => this.handleSelect_FAB({factory})} >{factory.FAB_ID}</DropdownItem>))}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
-    }
-
-    renderDropdown_AREA = (title, i) => {
-        return (
-            <ButtonDropdown isOpen={this.state[`AREA${i}`]} toggle={() => this.toggle(`AREA${i}`)} key={ i } id={ `dropdown-AREA-${i}`} title={'AREA'} onClick={this.onClick_AREA}>
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                {this.state.areas.map((area,index) => <DropdownItem key={index} onClick={() => this.handleSelect_AREA({area})} >{area.AREA_ID}</DropdownItem>)}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
-    }
-
-    renderDropdown_EQPGROUP = (title, i) => {
-        return (
-            <ButtonDropdown isOpen={this.state[`EQPGROUP${i}`]} toggle={() => this.toggle(`EQPGROUP${i}`)} key={ i } id={ `dropdown-EQPGROUP-${i}`} onClick={this.onClick_EQPGRP} >
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                {this.state.eqpgrps.map((eqpgrp,index) => <DropdownItem key={index} onClick={() => this.handleSelect_EQPGROUP({eqpgrp})} >{eqpgrp.EQP_GRP}</DropdownItem>)}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
-    }
-
-    renderDropdown_EQP = (title, i) => {
-        return (
-            <ButtonDropdown isOpen={this.state[`EQP${i}`]} toggle={() => this.toggle(`EQP${i}`)} key={ i } id={ `dropdown-EQP-${i}`} onClick={this.onClick_EQP}>
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                {this.state.eqps.map((eqp,index) => <DropdownItem key={index} onClick={() => this.handleSelect_EQP({eqp})} >{eqp.EQP_ID}</DropdownItem>)}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
     }
 
     render() {
@@ -366,7 +317,6 @@ class SSearch extends Component {
                 <div className="content-heading">
                     <div>
                         Scenario 조회
-                        {/* <small>Subtitle</small> */}
                     </div>
                 </div>
                 {/* <Row>
@@ -380,34 +330,19 @@ class SSearch extends Component {
                         <CardWithHeader>
                             <FormGroup row>
                                 <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">FAB</label>
-                                        <ButtonToolbar>{ this.state.BUTTONS_FAB.map(this.renderDropdown_FAB) }</ButtonToolbar>
-                                    </div>
+                                    <Combo button={this.state.BUTTONS_FAB} name='FAB' handleSelect={this.handleSelect} ref={this.comboRef_FAB} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
                                 </Col>
                                 <Col lg={ 4 }>
-                                   <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">AREA</label>
-                                         <ButtonToolbar>{ this.state.BUTTONS_AREA.map(this.renderDropdown_AREA) }</ButtonToolbar>
-                                    </div>
+                                    <Combo button={this.state.BUTTONS_AREA} name='AREA' handleSelect={this.handleSelect} ref={this.comboRef_AREA} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB)}} defaultYN={false}></Combo>
                                 </Col>
                             </FormGroup>
                             <FormGroup row>
-                                 <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">EQP Group</label>
-                                        <ButtonToolbar>{ this.state.BUTTONS_EQPGROUP.map(this.renderDropdown_EQPGROUP) }</ButtonToolbar>
-                                    </div>
+                                <Col lg={ 4 }>
+                                    <Combo button={this.state.BUTTONS_EQPGROUP} name='EQP GRP' handleSelect={this.handleSelect} ref={this.comboRef_EQPGROUP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)}} defaultYN={false}></Combo>
                                 </Col>
                                 <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">EQP</label>
-                                        <ButtonToolbar>{ this.state.BUTTONS_EQP.map(this.renderDropdown_EQP) }</ButtonToolbar>
-                                    </div>
+                                    <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo>
                                 </Col>
                                 <Col lg={ 4 }>
                                     <div className="card-body d-flex align-items-center">
@@ -425,7 +360,6 @@ class SSearch extends Component {
                             <CardHeader><b>시나리오 List</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
-                                    name='test'
                                     onGridSort={this.handleGridSort}
                                     columns={this.SCENARIO_LIST}
                                     rowGetter={this.SCENARIOList_Getter}
