@@ -7,7 +7,7 @@ import Combo from '../Combo/Combo';
 import Swal from '../Elements/Swal';
 
 const CardWithHeader = props => (
-    <Card className="card-default">
+    <Card outline color="info" className="mb-3">
         <CardHeader><CardTitle tag="h3">{props.header}</CardTitle></CardHeader>
         <CardBody>{props.children}</CardBody>
     </Card>
@@ -69,7 +69,7 @@ class SSearch extends Component {
             },
             {
                 key: 'AREA_ID',
-                name: 'AREA_ID',
+                name: 'AREAID',
                 width: 80
             },
             {
@@ -316,7 +316,7 @@ class SSearch extends Component {
             <ContentWrapper>
                 <div className="content-heading">
                     <div>
-                        Scenario 조회
+                        <b>Scenario 조회</b>
                     </div>
                 </div>
                 {/* <Row>
@@ -325,27 +325,25 @@ class SSearch extends Component {
                    </Col>
                 </Row> */}
                 <Row>
-                    <Col md={ 12 }>
+                    <Col lg={12} md={ 12 } sm={12}>
                         { /* START Card */ }
                         <CardWithHeader>
                             <FormGroup row>
-                                <Col lg={ 4 }>
+                                <Col>
                                     <Combo button={this.state.BUTTONS_FAB} name='FAB' handleSelect={this.handleSelect} ref={this.comboRef_FAB} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
                                 </Col>
-                                <Col lg={ 4 }>
+                                <Col>
                                     <Combo button={this.state.BUTTONS_AREA} name='AREA' handleSelect={this.handleSelect} ref={this.comboRef_AREA} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB)}} defaultYN={false}></Combo>
                                 </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Col lg={ 4 }>
+                                <Col>
                                     <Combo button={this.state.BUTTONS_EQPGROUP} name='EQP GRP' handleSelect={this.handleSelect} ref={this.comboRef_EQPGROUP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)}} defaultYN={false}></Combo>
                                 </Col>
-                                <Col lg={ 4 }>
+                                <Col>
                                     <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
                                             + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo>
                                 </Col>
-                                <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
+                                <Col lg={1}>
+                                    <div className="d-flex align-items-center">
                                         <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Search</Button></ButtonToolbar>
                                     </div>
                                 </Col>
@@ -355,9 +353,9 @@ class SSearch extends Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col xl="8">
-                        <Card>
-                            <CardHeader><b>시나리오 List</b></CardHeader>
+                    <Col lg={8} md={ 8 } sm={8} xl={8}>
+                        <Card outline color="info" className="mb-3">
+                            <CardHeader className="text-white bg-info"><b>시나리오 List</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
                                     onGridSort={this.handleGridSort}
@@ -370,9 +368,9 @@ class SSearch extends Component {
                             </Container>
                         </Card>
                     </Col>
-                    <Col xl="4">
-                        <Card>
-                            <CardHeader><b>시나리오 Info</b></CardHeader>
+                    <Col lg={4} md={ 4 } sm={4} xl={4}>
+                    <Card outline color="info" className="mb-3">
+                            <CardHeader className="text-white bg-info"><b>시나리오 Info</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
                                     onGridSort={this.handleGridSort}
