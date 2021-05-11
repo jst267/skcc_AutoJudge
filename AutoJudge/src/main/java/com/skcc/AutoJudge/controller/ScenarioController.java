@@ -30,8 +30,54 @@ public class ScenarioController {
 				
 		List<Map<String, Object>> scenarioList = scenarioservice.getScenarioList(strFactory, strArea, strEqpGrp, strEqp);
 
-		return scenarioList;
-		
+		return scenarioList;	
+	}
+	
+	@GetMapping("/getEqpGrpListForSNROCNT")
+	@ResponseBody
+	public List<Map<String, Object>> getEqpGrpListForSNROCNT(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp) {
+				
+		List<Map<String, Object>> scenarioList = scenarioservice.getEqpGrpListForSNROCNT(strFactory, strArea, strEqpGrp);
+
+		return scenarioList;		
+	}
+	
+	@GetMapping("/getScenarioFromEqpGrp")
+	@ResponseBody
+	public List<Map<String, Object>> getScenarioFromEqpGrp(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp) {
+				
+		List<Map<String, Object>> scenario = scenarioservice.getScenarioFromEqpGrp(strFactory, strArea, strEqpGrp);
+
+		return scenario;		
+	}
+	
+	@GetMapping("/getAllScenarioList")
+	@ResponseBody
+	public List<Map<String, Object>> getAllScenarioList(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp) {
+				
+		List<Map<String, Object>> scenario = scenarioservice.getAllScenarioList(strFactory, strArea, strEqpGrp);
+
+		return scenario;	
+	}
+	
+	@GetMapping("/addScenarioPool")
+	@ResponseBody
+	public int setScenarioPool(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp,
+			 @RequestParam("SNRO_ID") String strSNROId) {
+				
+		int scenario = scenarioservice.setScenarioPool(strFactory, strArea, strEqpGrp, strSNROId);
+
+		return scenario;	
+	}
+	
+	@GetMapping("/removeScenarioPool")
+	@ResponseBody
+	public int removeScenarioPool(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp,
+			 @RequestParam("SNRO_ID") String strSNROId) {
+				
+		int scenario = scenarioservice.removeScenarioPool(strFactory, strArea, strEqpGrp, strSNROId);
+
+		return scenario;	
 	}
 
 }

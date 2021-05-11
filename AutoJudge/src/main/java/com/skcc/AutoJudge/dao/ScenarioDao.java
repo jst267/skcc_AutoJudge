@@ -15,10 +15,28 @@ public class ScenarioDao {
 	
 	
 	public List<Map<String, Object>> getScenarioList(Map<String,Object> param) {
-		// userMapper 라는 부분과 5단계에 있는 mapper.xml 파일의 namespace를 동일하게 맞춰준다
-        //.getUserInfo 와 5단계에 있는 <select id= 부분를 동일하게 맞춰준다.
         return sqlSessionTemplate.selectList("GetScenarioInfo.getScenarioList", param);
         
 	}
-
+	
+	public List<Map<String, Object>> getEqpGrpListForSNROCNT(Map<String,Object> param) {
+        return sqlSessionTemplate.selectList("GetScenarioInfo.getEqpGrpListForSNROCNT", param);
+        
+	}
+	
+	public List<Map<String, Object>> getScenarioFromEqpGrp(Map<String,Object> param) {
+        return sqlSessionTemplate.selectList("GetScenarioInfo.getScenarioFromEqpGrp", param);
+        
+	}	
+	
+	public List<Map<String, Object>> getAllScenarioList(Map<String,Object> param) {
+        return sqlSessionTemplate.selectList("GetScenarioInfo.getAllScenarioList", param);
+        
+	}	
+	
+	public int setScenarioPool(Map<String,Object> param) {
+        return sqlSessionTemplate.insert("SetScenarioInfo.setScenarioPool", param);
+        
+	}
+	
 }

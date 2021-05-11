@@ -13,9 +13,18 @@
 		       CRT_USER_ID,
 		       CHG_TM,
 		       CHG_USER_ID			   
-		  FROM BIZ_SCENARIO_INFO
+		  FROM BIZ_SCENARIO_INF
 	   	 WHERE FAB_ID = #{FAB_ID}
 		   AND AREA_ID = #{AREA_ID}
 		   AND SNRO_ID = #{SNRO_ID}
+	</select>
+	
+	<select id="getActivityDesc" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT ACTIVITY_DESC	   
+		  FROM BIZ_ACTIVITY_INF
+	   	 WHERE FAB_ID = #{FAB_ID}
+	   	   AND AREA_ID = #{AREA_ID}
+		   AND ACTIVITY_ID = #{ACTIVITY_ID}
+		   AND ACTIVITY_NM = #{ACTIVITY_NM}
 	</select>
 </mapper>

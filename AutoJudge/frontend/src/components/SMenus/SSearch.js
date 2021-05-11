@@ -153,7 +153,7 @@ class SSearch extends Component {
 
         this.SCENARIO_Info = [
             {
-                key: 'ACTIVITY_ID',
+                key: 'ACTIVITY_NM',
                 name: 'ACTIBITY_NM',
                 width: 100
             },
@@ -358,12 +358,11 @@ class SSearch extends Component {
                             <CardHeader className="text-white bg-info"><b>시나리오 List</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
-                                    onGridSort={this.handleGridSort}
+                                    // onGridSort={this.handleGridSort}
                                     columns={this.SCENARIO_LIST}
                                     rowGetter={this.SCENARIOList_Getter}
                                     onRowClick={this.onClickRow_SCENARIOLIST}
                                     rowsCount={this.state.SCENARIOLIST.length}
-                                    rowClicked={this.onClickRow_SCENARIOLIST}
                                     minHeight={700} />
                             </Container>
                         </Card>

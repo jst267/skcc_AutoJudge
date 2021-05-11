@@ -36,10 +36,19 @@ public class ActivityService {
 			for(int j = 0; j < arrActivityList.length; j++)
 			{
 				Map<String,Object> resultMap = new HashMap<String,Object>();
-				resultMap.put("ACTIVITY_ID", arrActivityList[j]);
+				resultMap.put("ACTIVITY_NM", arrActivityList[j]);
+				
+				Map<String,Object> act_param = new HashMap<String,Object>();
+				List<Map<String,Object>> activityDesc = new ArrayList<Map<String, Object>>();
+				
+				act_param.put("FAB_ID", strFactroy);
+				act_param.put("AREA_ID", strArea);
+				act_param.put("ACTIVITY_ID", strFactroy + "_" + strArea + "_" + arrActivityList[j]);
+				act_param.put("ACTIVITY_NM", arrActivityList[j]);
+				activityDesc = activityDAO.getActivityDesc(act_param);
 				
 				//ACTIVITY_DESC Rule
-				String strACTDesc = "[" + strSNRONM + "(" + arrActivityList[j] + ")" + "]";		
+				String strACTDesc = activityDesc.get(0).get("ACTIVITY_DESC").toString();		
 				resultMap.put("ACTIVITY_DESC", strACTDesc);
 
 				result.add(resultMap);

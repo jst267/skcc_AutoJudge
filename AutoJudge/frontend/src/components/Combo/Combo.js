@@ -69,7 +69,7 @@ class Combo extends Component {
         return (
                 <div className="d-flex align-items-center">
                     <Col lg={1}>
-                    <i className="far fa-square"></i>
+                    <i className="fas fa-cube"></i>
                     </Col>
                     <Col lg={5}>
                     <label className="col col-form-label">{this.props.name}</label>

@@ -28,13 +28,27 @@ class SPMgmt extends Component {
             BUTTONS_AREA : ['none'],
             BUTTONS_EQPGROUP : ['none'],
             BUTTONS_EQP : ['none'],
-            SCENARIOLIST : [],
+            EQPGRPLIST : [],
+            SCENARIOPOOL : [],
+            ALLSCENARIOLIST : [],
             SCENARIOINFO : [],
+
+            gFactory : [],
+            gArea :[],
+            gEqpGrp :[],
+
+            swalOption2: {
+                text: "조회조건을 확인해주세요",
+                icon: "warning"
+            },
 
             swalOption3: {
                 text: "조회조건을 확인해주세요",
                 icon: "warning"
             },
+
+            SNROPool_selectedRow : [],
+            ALLSNRO_selectedRow : [],
 
         };
 
@@ -65,25 +79,25 @@ class SPMgmt extends Component {
                 width: 80
             },
             {
-                key: 'SCENARIO_CNT',
-                name: 'USE COUNT',
-                width: 80
+                key: 'SNRO_CNT',
+                name: 'SNRO COUNT',
+                width: 120
             }
         ];
 
         this.SCENARIO_POOL = [
             {
-                key: 'SCENARIO_ID',
+                key: 'SNRO_ID',
                 name: 'SNRO ID',
                 width: 100
             },
             {
-                key: 'SCENARIO_NM',
+                key: 'SNRO_NM',
                 name: 'SNRO NM',
                 width: 150
             },
             {
-                key: 'DESC',
+                key: 'SNRO_DESC',
                 name: 'DESC',
                 width: 150
             },
@@ -96,46 +110,36 @@ class SPMgmt extends Component {
 
         this.ALL_SCENARIO_LIST = [
             {
-                key: 'SCENARIO_ID',
+                key: 'SNRO_ID',
                 name: '시나리오 ID',
                 width: 100
             },
             {
-                key: 'SCENARIO_NM',
+                key: 'SNRO_NM',
                 name: '시나리오 이름',
-                width: 150
+                width: 100
             },
             {
-                key: 'SCENARIO_DESC',
+                key: 'SNRO_DESC',
                 name: '시나리오 설명',
-                width: 150
+                width: 100
             },
             {
                 key: 'TRY_LIMIT_CNT',
                 name: 'TRY LIMIT',
-                width: 150
+                width: 80
             }
         ];
 
         this.SCENARIO_INFO = [
             {
-                key: 'SCENARIO_ID',
-                name: 'SNRO ID',
-                width: 100
-            },
-            {
-                key: 'SCENARIO_NM',
-                name: 'SNRO NM',
+                key: 'ACTIVITY_NM',
+                name: 'ACTIBITY_NM',
                 width: 150
             },
             {
-                key: 'DESC',
-                name: 'DESC',
-                width: 150
-            },
-            {
-                key: 'TRY_LIMIT_CNT',
-                name: 'TRY LIMIT',
+                key: 'ACTIVITY_DESC',
+                name: 'ACTIBITY_DESC',
                 width: 150
             }
         ];
@@ -156,32 +160,80 @@ class SPMgmt extends Component {
     };
 
     getSearchList = async () => {
-        if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none')
+        if(this.state.BUTTONS_FAB == 'none')
         {
             swal( this.state.swalOption3);
         }
         else
         {
-            const rScenario_List = await axios.get('http://localhost:8080/ScenarioInfo/getScenarioList?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
-            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP + '&' + 'EQP_ID=' + this.state.BUTTONS_EQP)
+            const rEqpGrp_List = await axios.get('http://localhost:8080/ScenarioInfo/getEqpGrpListForSNROCNT?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)
             this.setState({
-                SCENARIOLIST : rScenario_List.data
+                EQPGRPLIST : rEqpGrp_List.data,
+                SCENARIOPOOL : [],
+                ALLSCENARIOLIST : [],
+                SCENARIOINFO : []
             })
         }
     }
 
-    onClickRow_SCENARIOLIST = async(rowInfo) => {
+    addSCNRO =  async (rowInfo) => {
 
-        const rScenario_Info = await axios.get('http://localhost:8080/ActivityInfo/getActivityList?' + 'FAB_ID=' + this.state.SCENARIOLIST[rowInfo].FAB_ID + '&' + 'AREA_ID=' + this.state.SCENARIOLIST[rowInfo].AREA_ID
-        + '&' + 'SNRO_ID=' + this.state.SCENARIOLIST[rowInfo].SNRO_ID)
+        const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/addScenarioPool?' + 'FAB_ID=' + this.state.gFactory + '&' + 'AREA_ID=' + this.state.gArea
+        + '&' + 'EQP_GRP=' + this.state.gEqpGrp + '&' + 'SNRO_ID=' + this.state.ALLSCENARIOLIST[this.state.ALLSNRO_selectedRow].SNRO_ID)
+
+    }
+
+    removeSCNRO =  async () => {
+
+        const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/removeScenarioPool?' + 'FAB_ID=' + this.state.gFactory + '&' + 'AREA_ID=' + this.state.gArea
+        + '&' + 'EQP_GRP=' + this.state.gEqpGrp + '&' + 'SNRO_ID=' + this.state.SCENARIOPOOL[this.state.SNROPool_selectedRow].SNRO_ID)
+
+    }
+
+    onClickRow_EQPGRP_LIST = async(rowInfo) => {
+
+        const rScenario_Pool = await axios.get('http://localhost:8080/ScenarioInfo/getScenarioFromEqpGrp?' + 'FAB_ID=' + this.state.EQPGRPLIST[rowInfo].FAB_ID + '&' + 'AREA_ID=' + this.state.EQPGRPLIST[rowInfo].AREA_ID
+        + '&' + 'EQP_GRP=' + this.state.EQPGRPLIST[rowInfo].EQP_GRP)
+
+        const rALL_Scenario_List = await axios.get('http://localhost:8080/ScenarioInfo/getAllScenarioList?' + 'FAB_ID=' + this.state.EQPGRPLIST[rowInfo].FAB_ID + '&' + 'AREA_ID=' + this.state.EQPGRPLIST[rowInfo].AREA_ID
+        + '&' + 'EQP_GRP=' + this.state.EQPGRPLIST[rowInfo].EQP_GRP)
 
         this.setState({
-            SCENARIOINFO : rScenario_Info.data
+            SCENARIOPOOL : rScenario_Pool.data,
+            ALLSCENARIOLIST : rALL_Scenario_List.data,
+            gFactory : [this.state.EQPGRPLIST[rowInfo].FAB_ID],
+            gArea : [this.state.EQPGRPLIST[rowInfo].AREA_ID],
+            gEqpGrp : [this.state.EQPGRPLIST[rowInfo].EQP_GRP]
+        })
+    }
+
+    onClickRow_SCENARIOPool = async(rowInfo) => {
+
+        const rActivity_List = await axios.get('http://localhost:8080/ActivityInfo/getActivityList?' + 'FAB_ID=' + this.state.gFactory+ '&' + 'AREA_ID=' + this.state.gArea
+        + '&' + 'SNRO_ID=' + this.state.SCENARIOPOOL[rowInfo].SNRO_ID)
+
+        this.setState({
+            SCENARIOINFO : rActivity_List.data,
+            SNROPool_selectedRow : rowInfo
+        })
+    }
+
+    onClickRow_ALLSCENARIOLIST = async(rowInfo) => {
+
+        const rActivity_List = await axios.get('http://localhost:8080/ActivityInfo/getActivityList?' + 'FAB_ID=' + this.state.gFactory+ '&' + 'AREA_ID=' + this.state.gArea
+        + '&' + 'SNRO_ID=' + this.state.ALLSCENARIOLIST[rowInfo].SNRO_ID)
+
+        this.setState({
+            SCENARIOINFO : rActivity_List.data,
+            ALLSNRO_selectedRow : rowInfo
         })
     }
 
 
-    SCENARIOList_Getter = (i) => this.state.SCENARIOLIST[i]
+    EQPGRPLIST_Getter = (i) => this.state.EQPGRPLIST[i]
+    SCENARIOPool_Getter = (i) => this.state.SCENARIOPOOL[i]
+    ALLSCENARIOLIST_Getter = (i) => this.state.ALLSCENARIOLIST[i]
     SCENARIOInfo_Getter = (i) => this.state.SCENARIOINFO[i]
 
     handleGridSort = (sortColumn, sortDirection) => {
@@ -286,13 +338,14 @@ class SPMgmt extends Component {
 
     render() {
         // const [users, setUsers] = [''];
-        // const CSS = '.content-wrapper div:not(.btn-group)>.btn, .btn-group { margin: 0 4px 4px 0 }'; // space for buttons demo
+        const CSS = '.content-wrapper div:not(.btn-group)>.btn, .btn-group { margin: 0 4px 4px 0 }'; // space for buttons demo
 
         return (
             <ContentWrapper>
+                <style>{CSS}</style>
                 <div className="content-heading">
                     <div>
-                        Scenario 조회
+                        <b>Scenario Pool 관리</b>
                     </div>
                 </div>
                 {/* <Row>
@@ -304,7 +357,7 @@ class SPMgmt extends Component {
                     <Col md={ 12 }>
                         { /* START Card */ }
                         <CardWithHeader>
-                            <FormGroup row>
+                            {/* <FormGroup row>
                                 <Col lg={ 4 }>
                                     <Combo button={this.state.BUTTONS_FAB} name='FAB' handleSelect={this.handleSelect} ref={this.comboRef_FAB} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
                                 </Col>
@@ -330,6 +383,28 @@ class SPMgmt extends Component {
                                         <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Save</Button></ButtonToolbar>
                                     </div>
                                 </Col>
+                            </FormGroup> */}
+                            <FormGroup row>
+                                <Col>
+                                    <Combo button={this.state.BUTTONS_FAB} name='FAB' handleSelect={this.handleSelect} ref={this.comboRef_FAB} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
+                                </Col>
+                                <Col>
+                                    <Combo button={this.state.BUTTONS_AREA} name='AREA' handleSelect={this.handleSelect} ref={this.comboRef_AREA} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB)}} defaultYN={false}></Combo>
+                                </Col>
+                                <Col>
+                                    <Combo button={this.state.BUTTONS_EQPGROUP} name='EQP GRP' handleSelect={this.handleSelect} ref={this.comboRef_EQPGROUP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)}} defaultYN={false}></Combo>
+                                </Col>
+                                {/* <Col>
+                                    <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo>
+                                </Col> */}
+                                <Col lg={2}>
+                                    <div className="d-flex align-items-center">
+                                        <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Search</Button></ButtonToolbar>
+                                        {/* <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Save</Button></ButtonToolbar> */}
+                                        {/* <ButtonToolbar><Button color="info" onClick={this.getSearchList}>SAVE</Button></ButtonToolbar> */}
+                                    </div>
+                                </Col>
                             </FormGroup>
                         </CardWithHeader>
                         { /* END Card */ }
@@ -343,10 +418,9 @@ class SPMgmt extends Component {
                                 <ReactDataGrid
                                     onGridSort={this.handleGridSort}
                                     columns={this.EQPGRP_LIST}
-                                    rowGetter={this.SCENARIOList_Getter}
-                                    onRowClick={this.onClickRow_SCENARIOLIST}
-                                    rowsCount={this.state.SCENARIOLIST.length}
-                                    rowClicked={this.onClickRow_SCENARIOLIST}
+                                    rowGetter={this.EQPGRPLIST_Getter}
+                                    onRowClick={this.onClickRow_EQPGRP_LIST}
+                                    rowsCount={this.state.EQPGRPLIST.length}
                                     minHeight={765} />
                             </Container>
                         </Card>
@@ -358,8 +432,9 @@ class SPMgmt extends Component {
                                 <ReactDataGrid
                                     onGridSort={this.handleGridSort}
                                     columns={this.SCENARIO_POOL}
-                                    rowGetter={this.SCENARIOInfo_Getter}
-                                    rowsCount={this.state.SCENARIOINFO.length}
+                                    rowGetter={this.SCENARIOPool_Getter}
+                                    onRowClick={this.onClickRow_SCENARIOPool}
+                                    rowsCount={this.state.SCENARIOPOOL.length}
                                     minHeight={765} />
                             </Container>
                         </Card>
@@ -369,12 +444,12 @@ class SPMgmt extends Component {
                             <Col xl="2">
                                 <Row className="align-items-center">
                                     <div className="card-body d-flex">
-                                        <Button color="warning" size="lg">
+                                        <Button color="warning" onClick={this.addSCNRO} size="lg">
                                                 <i className="fa fa-arrow-left"></i>
                                         </Button>
                                     </div>
                                     <div className="card-body d-flex">
-                                        <Button color="warning" size="lg">
+                                        <Button color="warning" onClick={this.removeSCNRO} size="lg">
                                             <i className="fa fa-arrow-right"></i>
                                         </Button>
                                     </div>
@@ -387,8 +462,9 @@ class SPMgmt extends Component {
                                             <ReactDataGrid
                                                 onGridSort={this.handleGridSort}
                                                 columns={this.ALL_SCENARIO_LIST}
-                                                rowGetter={this.SCENARIOInfo_Getter}
-                                                rowsCount={this.state.SCENARIOINFO.length}
+                                                rowGetter={this.ALLSCENARIOLIST_Getter}
+                                                onRowClick={this.onClickRow_ALLSCENARIOLIST}
+                                                rowsCount={this.state.ALLSCENARIOLIST.length}
                                                 minHeight={350} />
                                         </Container>
                                     </Card>
