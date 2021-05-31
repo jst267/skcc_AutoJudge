@@ -4,10 +4,11 @@ import { Row, Col, Container, FormGroup, Card, CardHeader, CardTitle, CardBody, 
 import ReactDataGrid from 'react-data-grid';
 import axios from 'axios';
 import Combo from '../Combo/Combo';
-import Swal from '../Elements/Swal';
+import swal from 'sweetalert';
+
 
 const CardWithHeader = props => (
-    <Card className="card-default">
+    <Card outline color="info" className="mb-3">
         <CardHeader><CardTitle tag="h3">{props.header}</CardTitle></CardHeader>
         <CardBody>{props.children}</CardBody>
     </Card>
@@ -37,18 +38,42 @@ class SPMgmt extends Component {
             gArea :[],
             gEqpGrp :[],
 
+            swalOption_Confirm: {
+                title: 'Are you sure?',
+                text: 'Your will not be able to recover this imaginary file!',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'No, cancel plx!',
+                        value: null,
+                        visible: true,
+                        className: "",
+                        closeModal: false
+                    },
+                    confirm: {
+                        text: 'Success',
+                        value: true,
+                        visible: true,
+                        className: "bg-danger",
+                        closeModal: false
+                    }
+                }
+            },
+
             swalOption2: {
                 text: "조회조건을 확인해주세요",
-                icon: "warning"
+                icon: "warning",
+                button: "확인"
             },
 
             swalOption3: {
-                text: "조회조건을 확인해주세요",
+                text: "해당 시나리오가 사용되는 장비가 존재합니다.",
                 icon: "warning"
             },
 
-            SNROPool_selectedRow : [],
-            ALLSNRO_selectedRow : [],
+            SNROPool_selectedRow : "",
+            ALLSNRO_selectedRow : "",
+            EQPGRPList_selectedRow : "",
 
         };
 
@@ -155,14 +180,11 @@ class SPMgmt extends Component {
 
     }
 
-    getRandomDate = (start, end) => {
-        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())).toLocaleDateString();
-    };
-
     getSearchList = async () => {
+
         if(this.state.BUTTONS_FAB == 'none')
         {
-            swal( this.state.swalOption3);
+            swal(this.state.swalOption2)
         }
         else
         {
@@ -172,22 +194,95 @@ class SPMgmt extends Component {
                 EQPGRPLIST : rEqpGrp_List.data,
                 SCENARIOPOOL : [],
                 ALLSCENARIOLIST : [],
-                SCENARIOINFO : []
+                SCENARIOINFO : [],
+                EQPGRPList_selectedRow : "",
+                ALLSNRO_selectedRow : "",
+                SNROPool_selectedRow : ""
             })
         }
     }
 
-    addSCNRO =  async (rowInfo) => {
+    addSCNRO2 =  async () => {
 
-        const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/addScenarioPool?' + 'FAB_ID=' + this.state.gFactory + '&' + 'AREA_ID=' + this.state.gArea
+        await axios.get('http://localhost:8080/ScenarioInfo/addScenarioPool?' + 'FAB_ID=' + this.state.gFactory + '&' + 'AREA_ID=' + this.state.gArea
         + '&' + 'EQP_GRP=' + this.state.gEqpGrp + '&' + 'SNRO_ID=' + this.state.ALLSCENARIOLIST[this.state.ALLSNRO_selectedRow].SNRO_ID)
 
+        this.getSearchList();
+        this.onClickRow_EQPGRP_LIST(this.state.EQPGRPList_selectedRow);
+
+    }
+
+    addSCNRO =  async () => {
+
+        if(this.state.ALLSNRO_selectedRow.length != 0)
+        {
+            swal({
+                title: "",
+                text: "[" + this.state.ALLSCENARIOLIST[this.state.ALLSNRO_selectedRow].SNRO_ID + "] 시나리오를" + this.state.gEqpGrp + "Pool에 추가하시겠습니까?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((isOk) => {
+                if (isOk) {
+
+                    this.addSCNRO2();
+
+                    swal("SUCCESS", {
+                        icon: "success",
+                    });
+
+                } else {
+
+                }
+            });
+        }
+
+    }
+
+    removeSCNRO2 =  async () => {
+
+        const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/removeScenarioPool?' + 'FAB_ID=' + this.state.gFactory + '&' + 'AREA_ID=' + this.state.gArea
+        + '&' + 'EQP_GRP=' + this.state.gEqpGrp + '&' + 'SNRO_ID=' + this.state.SCENARIOPOOL[this.state.SNROPool_selectedRow].SNRO_ID)
+
+        if(isSuccess.data > 0)
+        {
+
+            this.getSearchList();
+            this.onClickRow_EQPGRP_LIST(this.state.EQPGRPList_selectedRow);
+        }
+        else
+        {
+            swal(this.state.swalOption3)
+        }
     }
 
     removeSCNRO =  async () => {
 
-        const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/removeScenarioPool?' + 'FAB_ID=' + this.state.gFactory + '&' + 'AREA_ID=' + this.state.gArea
-        + '&' + 'EQP_GRP=' + this.state.gEqpGrp + '&' + 'SNRO_ID=' + this.state.SCENARIOPOOL[this.state.SNROPool_selectedRow].SNRO_ID)
+        if(this.state.SNROPool_selectedRow.length != 0)
+        {
+            swal({
+                title: "",
+                text: "[" + this.state.SCENARIOPOOL[this.state.SNROPool_selectedRow].SNRO_ID +  "] 시나리오를" + "\n" +this.state.gEqpGrp + "에서 제외 하시겠습니까?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((isOk) => {
+                if (isOk) {
+
+                    this.removeSCNRO2();
+
+                    swal("SUCCESS", {
+                        icon: "success",
+                    });
+
+                } else {
+
+                }
+            });
+        }
+
 
     }
 
@@ -204,7 +299,8 @@ class SPMgmt extends Component {
             ALLSCENARIOLIST : rALL_Scenario_List.data,
             gFactory : [this.state.EQPGRPLIST[rowInfo].FAB_ID],
             gArea : [this.state.EQPGRPLIST[rowInfo].AREA_ID],
-            gEqpGrp : [this.state.EQPGRPLIST[rowInfo].EQP_GRP]
+            gEqpGrp : [this.state.EQPGRPLIST[rowInfo].EQP_GRP],
+            EQPGRPList_selectedRow : rowInfo
         })
     }
 
@@ -354,36 +450,9 @@ class SPMgmt extends Component {
                    </Col>
                 </Row> */}
                 <Row>
-                    <Col md={ 12 }>
+                    <Col lg={12} md={12} sm={12}>
                         { /* START Card */ }
                         <CardWithHeader>
-                            {/* <FormGroup row>
-                                <Col lg={ 4 }>
-                                    <Combo button={this.state.BUTTONS_FAB} name='FAB' handleSelect={this.handleSelect} ref={this.comboRef_FAB} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
-                                </Col>
-                                <Col lg={ 4 }>
-                                    <Combo button={this.state.BUTTONS_AREA} name='AREA' handleSelect={this.handleSelect} ref={this.comboRef_AREA} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB)}} defaultYN={false}></Combo>
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Col lg={ 4 }>
-                                    <Combo button={this.state.BUTTONS_EQPGROUP} name='EQP GRP' handleSelect={this.handleSelect} ref={this.comboRef_EQPGROUP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)}} defaultYN={false}></Combo>
-                                </Col>
-                                <Col lg={ 4 }>
-                                    <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
-                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo>
-                                </Col>
-                                <Col lg={ 1 }>
-                                    <div className="card-body d-flex">
-                                        <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Search</Button></ButtonToolbar>
-                                    </div>
-                                </Col>
-                                <Col lg={ 3 }>
-                                    <div className="card-body d-flex">
-                                        <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Save</Button></ButtonToolbar>
-                                    </div>
-                                </Col>
-                            </FormGroup> */}
                             <FormGroup row>
                                 <Col>
                                     <Combo button={this.state.BUTTONS_FAB} name='FAB' handleSelect={this.handleSelect} ref={this.comboRef_FAB} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
@@ -394,15 +463,13 @@ class SPMgmt extends Component {
                                 <Col>
                                     <Combo button={this.state.BUTTONS_EQPGROUP} name='EQP GRP' handleSelect={this.handleSelect} ref={this.comboRef_EQPGROUP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)}} defaultYN={false}></Combo>
                                 </Col>
-                                {/* <Col>
-                                    <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
-                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo>
-                                </Col> */}
+                                <Col>
+                                    {/* <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo> */}
+                                </Col>
                                 <Col lg={2}>
                                     <div className="d-flex align-items-center">
                                         <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Search</Button></ButtonToolbar>
-                                        {/* <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Save</Button></ButtonToolbar> */}
-                                        {/* <ButtonToolbar><Button color="info" onClick={this.getSearchList}>SAVE</Button></ButtonToolbar> */}
                                     </div>
                                 </Col>
                             </FormGroup>
@@ -411,9 +478,9 @@ class SPMgmt extends Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col xl="4">
+                    <Col lg={4} md={4} sm={4}>
                         <Card>
-                            <CardHeader><b>장비 그룹 List</b></CardHeader>
+                            <CardHeader className="text-white bg-info"><b>장비 그룹 List</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
                                     onGridSort={this.handleGridSort}
@@ -425,9 +492,9 @@ class SPMgmt extends Component {
                             </Container>
                         </Card>
                     </Col>
-                    <Col xl="4">
+                    <Col lg={4} md={4} sm={4}>
                         <Card>
-                            <CardHeader><b>시나리오 Pool</b></CardHeader>
+                            <CardHeader className="text-white bg-info"><b>시나리오 Pool</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
                                     onGridSort={this.handleGridSort}
@@ -439,9 +506,9 @@ class SPMgmt extends Component {
                             </Container>
                         </Card>
                     </Col>
-                    <Col xl="4">
+                    <Col lg={4} md={4} sm={4}>
                         <Row>
-                            <Col xl="2">
+                            <Col lg={2} md={2} sm={2}>
                                 <Row className="align-items-center">
                                     <div className="card-body d-flex">
                                         <Button color="warning" onClick={this.addSCNRO} size="lg">
@@ -455,9 +522,9 @@ class SPMgmt extends Component {
                                     </div>
                                 </Row>
                             </Col>
-                            <Col xl="10">
+                            <Col lg={10} md={10} sm={10}>
                                 <Card>
-                                        <CardHeader><b>전체 시나리오 List</b></CardHeader>
+                                        <CardHeader className="text-white bg-info"><b>전체 시나리오 List</b></CardHeader>
                                         <Container fluid>
                                             <ReactDataGrid
                                                 onGridSort={this.handleGridSort}
@@ -471,9 +538,9 @@ class SPMgmt extends Component {
                             </Col>
                         </Row>
                         <Row>
-                            <Col xl="12">
+                            <Col lg={12} md={12} sm={12}>
                                 <Card>
-                                    <CardHeader><b>시나리오 Info</b></CardHeader>
+                                    <CardHeader className="text-white bg-info"><b>시나리오 Info</b></CardHeader>
                                     <Container fluid>
                                         <ReactDataGrid
                                             onGridSort={this.handleGridSort}

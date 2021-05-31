@@ -24,6 +24,14 @@
 		   <if test='EQP_ID != null and !EQP_ID.equals("none")' >
 		  	 AND EQP_ID = #{EQP_ID}
 		   </if>
+		   
+		   <if test='ALRAM_ID != null' >
+		  	 AND ALRAM_ID = #{ALRAM_ID}
+		   </if>
+		   
+		   	<if test='SNRO_ID != null' >
+		  	 AND SNRO_ID = #{SNRO_ID}
+		   </if>
 	</select>
 	
 	<select id="getEqpGrpListForSNROCNT" resultType="java.util.HashMap" parameterType="java.util.HashMap">
@@ -50,7 +58,10 @@
 		  FROM BIZ_SCENARIO_INF
 	   	 WHERE FAB_ID = #{FAB_ID}
 		   	AND AREA_ID = #{AREA_ID}
-		   	AND SNRO_ID = #{SNRO_ID}
+
+		   <if test='SNRO_ID != null and SNRO_ID.length() > 0' >
+		 	  	AND SNRO_ID = #{SNRO_ID}
+		   </if>
 	</select>
 	
 	<select id="getAllScenarioList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
@@ -70,5 +81,56 @@
                 </foreach>
             </when>
         </choose>
+	</select>
+	
+	
+	<select id="getScenarioListCNT" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT COUNT(*)	AS CNT   
+		  FROM BIZ_AJSNROMAPPING_INF
+	   	 WHERE FAB_ID = #{FAB_ID}
+		   AND AREA_ID = #{AREA_ID}
+		   <if test='EQP_GRP != null and !EQP_GRP.equals("none")' >
+		  	 AND EQP_GRP = #{EQP_GRP}
+		   </if>	   
+		   AND SNRO_ID = #{SNRO_ID}
+	</select>
+	
+	<select id="getEQPMappingList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT A.AREA_ID,
+				   A.EQP_GRP,
+				   A.EQP_ID,
+				   B.ALARM_ID,
+				   B.SNRO_ID,
+				   NVL(B.AUTO_FLAG,'N') AS AUTO_FLAG 			
+		  FROM MAS_EQP_INF A,
+			   BIZ_AJSNROMAPPING_INF B
+	     WHERE A.FAB_ID = #{FAB_ID}
+	   	   AND A.AREA_ID = #{AREA_ID}
+		   <if test='EQP_GRP != null and !EQP_GRP.equals("none")' >
+			  AND A.EQP_GRP = #{EQP_GRP}
+			  AND A.EQP_GRP = B.EQP_GRP(+)
+		   </if>	   
+	       AND A.FAB_ID = B.FAB_ID(+)
+	       AND A.AREA_ID = B.AREA_ID(+)	   
+	       AND A.EQP_ID = B.EQP_ID(+)
+	</select>
+	
+	<select id="getScenarioFromAlarm" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT SNRO_ID,
+		       SNRO_NM,
+		       SNRO_DESC,
+		       TRY_LIMIT_CNT   
+		  FROM BIZ_SCENARIO_INF
+	   	 WHERE FAB_ID = #{FAB_ID}
+		   	AND AREA_ID = #{AREA_ID}
+
+		   <if test='SNRO_ID != null and SNRO_ID.length() > 0' >
+		 	  	AND SNRO_ID = #{SNRO_ID}
+		   </if>
+		   
+		   <if test='ALARM_ID != null and ALARM_ID.length() > 0' >
+		 	  	AND ALARM_ID = #{ALARM_ID}
+		   </if>
+	
 	</select>
 </mapper>

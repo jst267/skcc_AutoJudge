@@ -79,5 +79,44 @@ public class ScenarioController {
 
 		return scenario;	
 	}
+	
+	@GetMapping("/getEQPMappingList")
+	@ResponseBody
+	public List<Map<String, Object>> getEQPMappingList(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp) {
+				
+		List<Map<String, Object>> eqpList = scenarioservice.getEQPMappingList(strFactory, strArea, strEqpGrp);
+
+		return eqpList;	
+	}
+	
+	@GetMapping("/getScenarioFromAlarm")
+	@ResponseBody
+	public List<Map<String, Object>> getScenarioFromAlarm(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp,
+			 @RequestParam("ALARM_ID") String strAlarmId) {
+		List<Map<String, Object>> eqpList = scenarioservice.getScenarioFromAlarm(strFactory, strArea, strEqpGrp, strAlarmId);
+
+		return eqpList;	
+	}
+	
+	@GetMapping("/setScenarioForEQP")
+	@ResponseBody
+	public boolean setScenarioForEQP(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp,
+			@RequestParam("EQP_ID") String strEqp, @RequestParam("ALARM_ID") String strAlarmId, @RequestParam("SNRO_ID") String strSNROId, @RequestParam("AUTO_FLAG") String strAutoFlag) {
+
+		boolean isSuccess = scenarioservice.setScenarioForEQP(strFactory, strArea, strEqpGrp, strEqp, strAlarmId, strSNROId, strAutoFlag);
+		
+		return isSuccess;	
+	}
+	
+	@GetMapping("/removeScenarioForEQP")
+	@ResponseBody
+	public boolean removeScenarioForEQP(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea, @RequestParam("EQP_GRP") String strEqpGrp,
+			@RequestParam("EQP_ID") String strEqp, @RequestParam("ALARM_ID") String strAlarmId, @RequestParam("SNRO_ID") String strSNROId, @RequestParam("AUTO_FLAG") String strAutoFlag) {
+
+		boolean isSuccess = scenarioservice.removeScenarioForEQP(strFactory, strArea, strEqpGrp, strEqp, strAlarmId, strSNROId, strAutoFlag);
+		
+		return isSuccess;	
+	}
+	
 
 }

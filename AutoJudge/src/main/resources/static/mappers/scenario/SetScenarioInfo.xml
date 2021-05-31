@@ -4,9 +4,61 @@
 	<update id="setScenarioPool"  parameterType="java.util.HashMap">
 	
 		UPDATE BIZ_AJGRPSNRO_INF
-		  SET  SNRO_LIST = #{SNRO_LIST}
-		  WHERE FAB_ID = #{FAB_ID}
-		    AND	AREA_ID = #{AREA_ID}
-		    AND	EQP_GRP = #{EQP_GRP}
+		   SET SNRO_LIST = #{SNRO_LIST},
+		       SNRO_CNT = #{SNRO_CNT}
+		 WHERE FAB_ID = #{FAB_ID}
+		   AND AREA_ID = #{AREA_ID}
+		   AND EQP_GRP = #{EQP_GRP}
 	</update>
+	
+	<update id="setScenarioForEQP_Update"  parameterType="java.util.HashMap">
+		UPDATE BIZ_AJSNROMAPPING_INF
+		   SET ALARM_ID = #{ALARM_ID},
+		       SNRO_ID = #{SNRO_ID},
+		       AUTO_FLAG = #{AUTO_FLAG}
+		 WHERE FAB_ID = #{FAB_ID}
+		   AND AREA_ID = #{AREA_ID}
+		   AND EQP_GRP = #{EQP_GRP}
+		   AND EQP_ID = #{EQP_ID}
+		   AND ALARM_ID = #{ALARM_ID}
+		   AND SNRO_ID = #{SNRO_ID}		
+	</update>
+	
+	<insert id="setScenarioForEQP_Insert" parameterType="java.util.HashMap">
+	    INSERT INTO
+			BIZ_AJSNROMAPPING_INF(FAB_ID,
+			AREA_ID,
+			EQP_GRP,
+			EQP_ID,
+			ALARM_ID,
+			SNRO_ID,
+			SNRO_NM,
+			AUTO_FLAG,
+			CRT_TM,
+			CRT_USER_ID,
+			CHG_TM,
+			CHG_USER_ID)
+		VALUES(#{FAB_ID},
+				#{AREA_ID},
+				#{EQP_GRP},
+				#{EQP_ID},
+				#{ALARM_ID},
+				#{SNRO_ID},
+				#{SNRO_NM},
+				#{AUTO_FLAG},
+				SYSDATE,
+				'JST',
+				SYSDATE,
+				'JST')	
+	</insert>
+	
+	<delete id="setScenarioForEQP_Delete"  parameterType="java.util.HashMap">
+		DELETE FROM BIZ_AJSNROMAPPING_INF
+		 WHERE FAB_ID = #{FAB_ID}
+		   AND AREA_ID = #{AREA_ID}
+		   AND EQP_GRP = #{EQP_GRP}
+		   AND EQP_ID = #{EQP_ID}
+		   AND ALARM_ID = #{ALARM_ID}
+		   AND SNRO_ID = #{SNRO_ID}		
+	</delete>
 </mapper>

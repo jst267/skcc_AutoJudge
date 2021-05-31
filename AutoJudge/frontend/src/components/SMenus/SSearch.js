@@ -46,8 +46,11 @@ class SSearch extends Component {
 
             swalOption3: {
                 text: "조회조건을 확인해주세요",
-                icon: "warning"
+                icon: "warning",
+                button: "확인"
             },
+
+            select : "",
 
         };
 
@@ -58,7 +61,7 @@ class SSearch extends Component {
 
         this.SCENARIO_LIST = [
             // {
-            //     key: 'i',
+            //     key: 'id',
             //     name: 'NO.',
             //     width: 80
             // },
@@ -122,33 +125,6 @@ class SSearch extends Component {
                 name: '변경자',
                 sortable: true
             }
-            // {
-            //     key: 'assigned',
-            //     name: 'Assigned',
-            //     width: 70,
-            //     formatter: AssignedImageFormatter
-            // },
-            // {
-            //     key: 'priority',
-            //     name: 'Priority',
-            //     sortable: true
-            // },
-            // {
-            //     key: 'issueType',
-            //     name: 'Issue Type',
-            //     sortable: true
-            // },
-            // {
-            //     key: 'complete',
-            //     name: '% Complete',
-            //     formatter: PercentCompleteFormatter,
-            //     sortable: true
-            // },
-            // {
-            //     key: 'startDate',
-            //     name: 'Start Date',
-            //     sortable: true
-            // }
         ];
 
         this.SCENARIO_Info = [
@@ -175,9 +151,9 @@ class SSearch extends Component {
 
     }
 
-    getRandomDate = (start, end) => {
-        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())).toLocaleDateString();
-    };
+    // getRandomDate = (start, end) => {
+    //     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())).toLocaleDateString();
+    // };
 
     getSearchList = async () => {
         if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none')
@@ -189,12 +165,16 @@ class SSearch extends Component {
             const rScenario_List = await axios.get('http://localhost:8080/ScenarioInfo/getScenarioList?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
             + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP + '&' + 'EQP_ID=' + this.state.BUTTONS_EQP)
             this.setState({
-                SCENARIOLIST : rScenario_List.data
+                SCENARIOLIST : rScenario_List.data,
+                SCENARIOINFO : []
             })
         }
     }
 
     onClickRow_SCENARIOLIST = async(rowInfo) => {
+
+
+        this.state.SCENARIOLIST[rowInfo].isSelected = true;
 
         const rScenario_Info = await axios.get('http://localhost:8080/ActivityInfo/getActivityList?' + 'FAB_ID=' + this.state.SCENARIOLIST[rowInfo].FAB_ID + '&' + 'AREA_ID=' + this.state.SCENARIOLIST[rowInfo].AREA_ID
         + '&' + 'SNRO_ID=' + this.state.SCENARIOLIST[rowInfo].SNRO_ID)
@@ -308,6 +288,27 @@ class SSearch extends Component {
 
     }
 
+    // rowCheck = (rowIdx) => {
+    //     var tableState=this.state.tableState.concat([])
+    //     tableState[rowIdx.rowIdx].CHECKED='Y'
+    //     this.setState({tableState})
+    //   }
+
+    // RowRenderer = ({ renderBaseRow, ...props }) => {
+    //     const backsgroundColor = props.SNRO_ID % 2 ? "green" : "blue";
+    //     return <div style="background-color: ivory">{renderBaseRow(props)}</div>;
+    //   };
+
+    RowRenderer = ({ renderBaseRow, ...props }) => {
+        return renderBaseRow({...props, width: 500});
+      };
+
+    onSelectionChange = (({ selected }) => {
+        this.setState({
+            select : selected,
+        })
+    }, [])
+
     render() {
         // const [users, setUsers] = [''];
         // const CSS = '.content-wrapper div:not(.btn-group)>.btn, .btn-group { margin: 0 4px 4px 0 }'; // space for buttons demo
@@ -319,13 +320,8 @@ class SSearch extends Component {
                         <b>Scenario 조회</b>
                     </div>
                 </div>
-                {/* <Row>
-                   <Col lg={12}>
-                      <p>A row with content</p>
-                   </Col>
-                </Row> */}
                 <Row>
-                    <Col lg={12} md={ 12 } sm={12}>
+                    <Col lg={12} md={12} sm={12}>
                         { /* START Card */ }
                         <CardWithHeader>
                             <FormGroup row>
@@ -342,7 +338,7 @@ class SSearch extends Component {
                                     <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
                                             + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo>
                                 </Col>
-                                <Col lg={1}>
+                                <Col lg={2} md={2} sm={2}>
                                     <div className="d-flex align-items-center">
                                         <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Search</Button></ButtonToolbar>
                                     </div>
@@ -353,7 +349,7 @@ class SSearch extends Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col lg={8} md={ 8 } sm={8} xl={8}>
+                    <Col lg={8} md={8} sm={8} xl={8}>
                         <Card outline color="info" className="mb-3">
                             <CardHeader className="text-white bg-info"><b>시나리오 List</b></CardHeader>
                             <Container fluid>
@@ -363,11 +359,13 @@ class SSearch extends Component {
                                     rowGetter={this.SCENARIOList_Getter}
                                     onRowClick={this.onClickRow_SCENARIOLIST}
                                     rowsCount={this.state.SCENARIOLIST.length}
+                                    rowRenderer={this.RowRenderer}
+                                    // onSelectionChange={this.onSelectionChange}
                                     minHeight={700} />
                             </Container>
                         </Card>
                     </Col>
-                    <Col lg={4} md={ 4 } sm={4} xl={4}>
+                    <Col lg={4} md={4} sm={4} xl={4}>
                     <Card outline color="info" className="mb-3">
                             <CardHeader className="text-white bg-info"><b>시나리오 Info</b></CardHeader>
                             <Container fluid>

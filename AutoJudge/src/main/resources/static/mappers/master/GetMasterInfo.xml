@@ -26,4 +26,15 @@
 	       AND AREA_ID = #{AREA_ID}
 	       AND EQP_GRP = #{EQP_GRP}
 	</select>
+	
+	<select id="getAlarmInfo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT ALARM_ID,
+		 	   ALARM_CODE,
+		 	   ALARM_DESC
+	      FROM MAS_ALARM_INF
+	     WHERE FAB_ID = #{FAB_ID}	     
+	       <if test='AREA_ID != null and !AREA_ID.equals("none")' >
+	       		AND AREA_ID = #{AREA_ID}
+		   </if>
+	</select>
 </mapper>

@@ -61,6 +61,15 @@ public class MasterController {
 
 		return eqpgrp;
 	}
+	
+	@GetMapping("/getAlarmInfo")
+	@ResponseBody
+	public List<Map<String, Object>> getAlarmInfo(@RequestParam("FAB_ID") String strFactory, @RequestParam("AREA_ID") String strArea) {
+				
+		List<Map<String, Object>> alramList = masterservice.getAlarmInfo(strFactory, strArea);
+
+		return alramList;
+	}
 }
 
 

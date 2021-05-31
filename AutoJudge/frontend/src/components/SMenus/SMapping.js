@@ -1,30 +1,32 @@
 import React, { Component, useState, useEffect } from 'react';
 import ContentWrapper from '../Layout/ContentWrapper';
-import { Row, Col, Container, FormGroup, Card, CardHeader, CardTitle, CardBody, Button, ButtonGroup, ButtonToolbar, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
+import { Row, Col, Container, FormGroup, Card, CardHeader, CardTitle, CardBody, Button,  ButtonToolbar,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter, } from 'reactstrap';
 import ReactDataGrid from 'react-data-grid';
+import Combo from '../Combo/Combo';
 import axios from 'axios';
-import Swal from '../Elements/Swal';
+import swal from 'sweetalert';
+import { Editors } from "react-data-grid-addons";
+
+
+const { DropDownEditor } = Editors;
+
+const AutoFlagValue = [
+    { id: "Y", value: "Y" },
+    { id: "N", value: "N" }
+]
+
+const AutoFlagValueEditor = <DropDownEditor options={AutoFlagValue} />;
 
 const CardWithHeader = props => (
-    <Card className="card-default">
+    <Card outline color="info" className="mb-3">
         <CardHeader><CardTitle tag="h3">{props.header}</CardTitle></CardHeader>
         <CardBody>{props.children}</CardBody>
     </Card>
 )
-
-const FaCard = ({icon}) => {
-    const iconName = icon.split('fa-')[1].substring(0,20)
-    return (
-        <Col xl={3} lg={4}>
-            <div className="card">
-                <div className="card-body d-flex align-items-center">
-                    <em className={"fa-2x mr-2 "+ icon}></em>
-                    <span>{iconName}</span>
-                </div>
-            </div>
-        </Col>
-    )
-}
 
 class SMapping extends Component {
 
@@ -39,30 +41,108 @@ class SMapping extends Component {
             BUTTONS_FAB : ['none'],
             BUTTONS_AREA : ['none'],
             BUTTONS_EQPGROUP : ['none'],
-            BUTTONS_EQP : ['none'],
+            // BUTTONS_EQP : ['none'],
+            BUTTONS_FAB_MODAL : ['none'],
+            BUTTONS_AREA_MODAL : ['none'],
+            BUTTONS_EQPGROUP_MODAL : ['none'],
+            BUTTONS_EQP_MODAL : ['none'],
+            EQPLIST : [],
+            ALARMLIST : [],
             SCENARIOLIST : [],
-            SCENARIOINFO : [],
+            ACTIVITYLIST : [],
+            modal: false,
+
+            gFactory : [],
+            gArea :[],
+            gEqpGrp :[],
+
+            swalOption_Confirm: {
+                title: 'Are you sure?',
+                text: 'Your will not be able to recover this imaginary file!',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'No, cancel plx!',
+                        value: null,
+                        visible: true,
+                        className: "",
+                        closeModal: false
+                    },
+                    confirm: {
+                        text: 'Success',
+                        value: true,
+                        visible: true,
+                        className: "bg-danger",
+                        closeModal: false
+                    }
+                }
+            },
 
             swalOption3: {
                 text: "조회조건을 확인해주세요",
+                icon: "warning",
+                button: "확인"
+            },
+
+            swalOption4: {
+                text: "누락된 값이 있습니다",
+                icon: "warning",
+                button: "확인"
+            },
+
+            swalOption_ALARM: {
+                text: "알람을 선택해주세요",
+                icon: "warning",
+                button: "확인"
+            },
+
+            swalOption_EQP: {
+                text: "장비를 선택해주세요",
+                icon: "warning",
+                button: "확인"
+            },
+
+            swalOption_SCNRO: {
+                text: "시나리오를 선택해주세요",
+                icon: "warning",
+                button: "확인"
+            },
+
+            swalOption_ERROR: {
+                text: "Alarm에 맞는 Scenario를 맞춰주세요",
                 icon: "warning"
             },
+
+            swalOption_REQUIRED: {
+                text: "Alarm과 SCENARIO는 필수 값입니다.",
+                icon: "warning"
+            },
+
+            EQPList_selectedRow : "",
+            ALARMList_selectedRow : "",
+            SCENARIOList_selectRow : ""
         };
 
-        this.SCENARIO_LIST = [
-            // {
-            //     key: 'i',
-            //     name: 'NO.',
-            //     width: 80
-            // },
+        // this.IssueTypeEditor = <DropDownEditor options={this.state.AREA_ID} />;
+        this.comboRef_FAB = React.createRef()
+        this.comboRef_AREA = React.createRef()
+        this.comboRef_EQPGROUP = React.createRef()
+        this.comboRef_EQP = React.createRef()
+
+        this.comboRef_FAB_MODAL = React.createRef()
+        this.comboRef_AREA_MODAL = React.createRef()
+        this.comboRef_EQPGROUP_MODAL = React.createRef()
+        this.comboRef_EQP_MODAL = React.createRef()
+
+        this.EQP_LIST = [
             {
-                key: 'FAB_ID',
-                name: 'FAB',
-                width: 80
+                key: 'id',
+                name: 'id',
+                width: 50
             },
             {
                 key: 'AREA_ID',
-                name: 'AREA_ID',
+                name: 'AREA',
                 width: 80
             },
             {
@@ -77,100 +157,77 @@ class SMapping extends Component {
             },
             {
                 key: 'ALARM_ID',
-                name: '알람ID',
-                sortable: true
+                name: 'ALARM ID',
+                width: 80
             },
             {
                 key: 'SNRO_ID',
-                name: '시나리오ID',
-                sortable: true
-            },
-            {
-                key: 'SNRO_NM',
-                name: '시나리오명',
-                sortable: true
+                name: '시나리오 ID',
+                width: 100
             },
             {
                 key: 'AUTO_FLAG',
-                name: 'Auto상태',
-                sortable: true
+                name: 'Auto Flag',
+                editor: AutoFlagValueEditor,
+                width: 120
             },
-            {
-                key: 'CRT_TM',
-                name: '생성일시',
-                sortable: true
-            },
-            {
-                key: 'CRT_USER_ID',
-                name: '생성자',
-                sortable: true
-            },
-            {
-                key: 'CHG_TM',
-                name: '변경일시',
-                sortable: true
-            },
-            {
-                key: 'CHG_USER_ID',
-                name: '변경자',
-                sortable: true
-            }
-            // {
-            //     key: 'assigned',
-            //     name: 'Assigned',
-            //     width: 70,
-            //     formatter: AssignedImageFormatter
-            // },
-            // {
-            //     key: 'priority',
-            //     name: 'Priority',
-            //     sortable: true
-            // },
-            // {
-            //     key: 'issueType',
-            //     name: 'Issue Type',
-            //     sortable: true
-            // },
-            // {
-            //     key: 'complete',
-            //     name: '% Complete',
-            //     formatter: PercentCompleteFormatter,
-            //     sortable: true
-            // },
-            // {
-            //     key: 'startDate',
-            //     name: 'Start Date',
-            //     sortable: true
-            // }
         ];
 
-        this.SCENARIO_Info = [
+        this.ALARM_LIST = [
             {
-                key: 'ACTIVITY_ID',
+                key: 'ALARM_ID',
+                name: 'Alarm ID',
+                width: 80
+            },
+            {
+                key: 'ALARM_CODE',
+                name: 'Alarm Code',
+                width: 80
+            },
+            {
+                key: 'ALARM_DESC',
+                name: 'DESC',
+                width: 150
+            }
+        ];
+
+        this.SCENARIO_LIST = [
+            {
+                key: 'SNRO_ID',
+                name: 'SNRO ID',
+                width: 90
+            },
+            {
+                key: 'SNRO_NM',
+                name: 'SNRO NM',
+                width: 90
+            },
+            {
+                key: 'SNRO_DESC',
+                name: 'DESC',
+                width: 100
+            },
+            {
+                key: 'TRY_LIMIT_CNT',
+                name: 'TRY LIMIT',
+                width: 80
+            }
+        ];
+
+        this.ACTIVITY_LIST = [
+            {
+                key: 'ACTIVITY_NM',
                 name: 'ACTIBITY_NM',
                 width: 100
             },
             {
                 key: 'ACTIVITY_DESC',
                 name: 'ACTIBITY_DESC',
-                width: 150
-            },
+                width: 120
+            }
         ];
     }
 
-    //_Load
-    componentWillMount() {
-
-    }
-
-    //_after
-    componentDidMount(){
-
-    }
-
-    getRandomDate = (start, end) => {
-        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())).toLocaleDateString();
-    };
 
     getSearchList = async () => {
         if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none')
@@ -179,27 +236,244 @@ class SMapping extends Component {
         }
         else
         {
-            const rScenario_List = await axios.get('http://localhost:8080/ScenarioInfo/getScenarioList?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+            const rEqp_List = await axios.get('http://localhost:8080/ScenarioInfo/getScenarioList?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
             + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP + '&' + 'EQP_ID=' + this.state.BUTTONS_EQP)
+
+            // const rAlarm_List = await axios.get('http://localhost:8080/MasterInfo/getAlarmInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)
+
             this.setState({
-                SCENARIOLIST : rScenario_List.data
+                EQPLIST : rEqp_List.data,
+                ALARMList_selectedRow : "",
+                SCENARIOList_selectRow : "",
+                ALARMLIST : [],
+                SCENARIOLIST : [],
+                ACTIVITYLIST : []
             })
         }
     }
 
-    onClickRow_SCENARIOLIST = async(rowInfo) => {
+    Save = async() => {
 
-        const rScenario_Info = await axios.get('http://localhost:8080/ActivityInfo/getActivityList?' + 'FAB_ID=' + this.state.SCENARIOLIST[rowInfo].FAB_ID + '&' + 'AREA_ID=' + this.state.SCENARIOLIST[rowInfo].AREA_ID
-        + '&' + 'SNRO_ID=' + this.state.SCENARIOLIST[rowInfo].SNRO_ID)
+        if(!this.state.EQPList_selectedRow[0].ALARM_ID || !this.state.EQPList_selectedRow[0].SNRO_ID || !this.state.EQPList_selectedRow[0].AUTO_FLAG)
+        {
+            swal( this.state.swalOption_REQUIRED);
+        }
+        else
+        {
+            const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/setScenarioForEQP?'+ 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.EQPList_selectedRow[0].AREA_ID
+            + '&' + 'EQP_GRP=' + this.state.EQPList_selectedRow[0].EQP_GRP + '&' + 'EQP_ID=' + this.state.EQPList_selectedRow[0].EQP_ID + '&' + 'ALARM_ID=' + this.state.EQPList_selectedRow[0].ALARM_ID
+            + '&' + 'SNRO_ID=' + this.state.EQPList_selectedRow[0].SNRO_ID + '&' + 'AUTO_FLAG=' + this.state.EQPList_selectedRow[0].AUTO_FLAG)
+            if(isSuccess.data)
+            {
+                swal("SUCCESS", {
+                    icon: "success",
+                });
+            }
+            else
+            {
+                swal( this.state.swalOption_ERROR);
+            }
+        }
+    }
+
+    Delete = async() => {
+
+        console.log(this.state.EQPLIST);
+
+        // if(!this.state.EQPList_selectedRow[0].ALARM_ID || !this.state.EQPList_selectedRow[0].SNRO_ID || !this.state.EQPList_selectedRow[0].AUTO_FLAG)
+        // {
+        //     swal( this.state.swalOption_REQUIRED);
+        // }
+        // else
+        // {
+        //     const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/removeScenarioForEQP?'+ 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.EQPList_selectedRow[0].AREA_ID
+        //     + '&' + 'EQP_GRP=' + this.state.EQPList_selectedRow[0].EQP_GRP + '&' + 'EQP_ID=' + this.state.EQPList_selectedRow[0].EQP_ID + '&' + 'ALARM_ID=' + this.state.EQPList_selectedRow[0].ALARM_ID
+        //     + '&' + 'SNRO_ID=' + this.state.EQPList_selectedRow[0].SNRO_ID + '&' + 'AUTO_FLAG=' + this.state.EQPList_selectedRow[0].AUTO_FLAG)
+
+        //     if(isSuccess.data)
+        //     {
+        //         swal("SUCCESS", {
+        //             icon: "success",
+        //         });
+        //     }
+        //     else
+        //     {
+        //         swal( this.state.swalOption_ERROR);
+        //     }
+        // }
+
+    }
+
+    addEQP = () => {
+
+        if(this.state.BUTTONS_FAB_MODAL == 'none' || this.state.BUTTONS_AREA_MODAL == 'none' || this.state.BUTTONS_EQPGROUP_MODAL == 'none' || this.state.BUTTONS_EQP_MODAL == 'none')
+        {
+            swal( this.state.swalOption4);
+        }
+        else
+        {
+            console.log(this.state.EQPLIST)
+            let row = {
+                        "id" : this.state.EQPLIST.length,
+                        "AREA_ID" : this.state.BUTTONS_AREA_MODAL,
+                        "EQP_GRP" : this.state.BUTTONS_EQPGROUP_MODAL,
+                        "EQP_ID" : this.state.BUTTONS_EQP_MODAL,
+                        "AUTO_FLAG" : "N"};
+
+            const rows = this.state.EQPLIST.slice();
+            rows.push(row);
+
+            this.setState({
+                EQPLIST : rows,
+                modal: !this.state.modal
+
+            });
+        }
+    }
+
+    toggleModal = () => {
+        this.setState({
+            modal: !this.state.modal
+        });
+    }
+
+    onEQPLIST_RowsSelected = async(rows) => {
+
+        const rAlarm_List = await axios.get('http://localhost:8080/MasterInfo/getAlarmInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + rows[0].AREA_ID)
 
         this.setState({
-            SCENARIOINFO : rScenario_Info.data
+            EQPList_selectedRow : rows,
+            ALARMLIST : rAlarm_List.data,
+        });
+
+        // console.log(this.state.EQPList_selectedRow);
+    };
+
+    onALARMLIST_RowsSelected = async (rows) => {
+
+        const rScenario_List = await axios.get('http://localhost:8080/ScenarioInfo/getScenarioFromAlarm?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+        + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP + '&' + 'ALARM_ID=' + rows[0].ALARM_ID)
+
+        this.setState({
+            ALARMList_selectedRow : rows,
+            SCENARIOLIST : rScenario_List.data
+        });
+
+    };
+
+    onSCENARIOLIST_RowsSelected = async (rows) => {
+
+        const rActivity_List = await axios.get('http://localhost:8080/ActivityInfo/getActivityList?' + 'FAB_ID=' + this.state.BUTTONS_FAB+ '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+        + '&' + 'SNRO_ID=' + rows[0].SNRO_ID)
+
+        this.setState({
+            SCENARIOList_selectRow : rows,
+            ACTIVITYLIST : rActivity_List.data
         })
+
+    };
+
+    addALARM = () => {
+
+        if(this.state.ALARMList_selectedRow.length == 0)
+        {
+            swal( this.state.swalOption_ALARM);
+        }
+        else if(this.state.EQPList_selectedRow.length == 0)
+        {
+            swal( this.state.swalOption_EQP);
+        }
+        else
+        {
+            let ALRAM = {"ALARM_ID" : this.state.ALARMList_selectedRow[0].ALARM_ID}
+            const rows = this.state.EQPLIST.slice();
+            let selectedRow = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                if(rows[i]["EQP_ID"] == this.state.EQPList_selectedRow[0]["EQP_ID"])
+                {
+                    rows[i] = { ...rows[i], ...ALRAM };
+                    selectedRow.push(rows[i]);
+                }
+            }
+
+            this.setState({
+                EQPLIST : rows,
+                EQPList_selectedRow : selectedRow
+            });
+        }
+
+    }
+
+    addSCNRO = () => {
+
+        if(this.state.SCENARIOList_selectRow.length == 0)
+        {
+            swal( this.state.swalOption_SCNRO);
+        }
+        else if(this.state.EQPList_selectedRow.length == 0)
+        {
+            swal( this.state.swalOption_EQP);
+        }
+        else
+        {
+            let SCNRO = {"SNRO_ID" : this.state.SCENARIOList_selectRow[0].SNRO_ID}
+            const rows = this.state.EQPLIST.slice();
+            let selectedRow = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                if(rows[i]["EQP_ID"] == this.state.EQPList_selectedRow[0]["EQP_ID"])
+                {
+                    rows[i] = { ...rows[i], ...SCNRO };
+                    selectedRow.push(rows[i]);
+                }
+            }
+
+            this.setState({
+                EQPLIST : rows,
+                EQPList_selectedRow : selectedRow
+            });
+        }
+    }
+
+    onGridRowsUpdated = ({ fromRow, toRow, updated }) => {
+
+          let selectedRow = [];
+          const rows = this.state.EQPLIST.slice();
+          for (let i = fromRow; i <= toRow; i++) {
+            rows[i] = { ...rows[i], ...updated };
+            selectedRow.push(rows[i]);
+          }
+
+          this.setState({
+            EQPLIST : rows,
+            EQPList_selectedRow : selectedRow
+        });
+
+      };
+
+    removeALARM =  async () => {
+
+        if(this.state.ALARMList_selectedRow.length == 0)
+        {
+            swal( this.state.swalOption_ALARM);
+        }
+        else if(this.state.EQPList_selectedRow.length == 0)
+        {
+            swal( this.state.swalOption_EQP);
+        }
+        else
+        {
+
+        }
+
     }
 
 
-    SCENARIOList_Getter = (i) => this.state.SCENARIOLIST[i]
-    SCENARIOInfo_Getter = (i) => this.state.SCENARIOINFO[i]
+    EQPLIST_Getter = (i) => this.state.EQPLIST[i]
+    ALARMLIST_Getter = (i) => this.state.ALARMLIST[i]
+    SCENARIOLIST_Getter = (i) => this.state.SCENARIOLIST[i]
+    ACTIVITYLIST_Getter = (i) => this.state.ACTIVITYLIST[i]
 
     handleGridSort = (sortColumn, sortDirection) => {
         const comparer = (a, b) => {
@@ -215,203 +489,241 @@ class SMapping extends Component {
         this.setState({ rows });
     };
 
-    toggle= dd => {
-        this.setState({
-            [dd]: !this.state[dd]
-        })
-    }
+    handleSelect = (SelectedValue) =>  {
 
-    handleSelect_FAB = SelectedValue =>  {
-        this.setState({
-            BUTTONS_FAB : [SelectedValue.factory.FAB_ID]
-        })
-    }
+        let key = Object.keys(SelectedValue.data);
 
-    handleSelect_AREA = SelectedValue =>  {
-        this.setState({
-            BUTTONS_AREA : [SelectedValue.area.AREA_ID]
-        })
-    }
-
-    handleSelect_EQPGROUP = SelectedValue =>  {
-        this.setState({
-            BUTTONS_EQPGROUP : [SelectedValue.eqpgrp.EQP_GRP]
-        })
-    }
-
-    handleSelect_EQP = SelectedValue =>  {
-        this.setState({
-            BUTTONS_EQP : [SelectedValue.eqp.EQP_ID]
-        })
-    }
-
-    //FAB Combo click
-    onClick_FAB = async () => {
-    	const response = await axios.get('http://localhost:8080/MasterInfo/getFactoryInfo')
-        this.setState({
-            factorys : response.data,
-            BUTTONS_AREA : ['none'],
-            BUTTONS_EQPGROUP : ['none'],
-        })
-    }
-
-    //Area Combo click
-    onClick_AREA = async () => {
-
-        if(this.state.BUTTONS_FAB == 'none')
+        if(key == 'FAB_ID')
         {
-            swal( this.state.swalOption3);
-        }
-        else
-        {
-            const response = await axios.get('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB)
             this.setState({
-                areas : response.data
+                BUTTONS_FAB : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='AREA_ID')
+        {
+            this.setState({
+                BUTTONS_AREA : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='EQP_GRP')
+        {
+            this.setState({
+                BUTTONS_EQPGROUP : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='EQP_ID')
+        {
+            this.setState({
+                BUTTONS_EQP : [SelectedValue.data[key]]
             })
         }
     }
 
-    //EQPGRP Combo click
-    onClick_EQPGRP = async () => {
+    //Combo click
+    onClick = async (url) => {
+    	const response = await axios.get(url)
 
-        if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none')
+        if(url.includes('getFactory'))
         {
-            swal( this.state.swalOption3);
-        }
-        else
-        {
-            const response = await axios.get('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)
+            this.comboRef_FAB.current.handleData(response);
             this.setState({
-                eqpgrps : response.data
+                BUTTONS_AREA : ['none'],
+                BUTTONS_EQPGROUP : ['none'],
+                BUTTONS_EQP : ['none'],
             })
         }
+        else if(url.includes('getAreaInfo'))
+        {
+            if(this.state.BUTTONS_FAB == 'none')
+            {
+                swal( this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_AREA.current.handleData(response);
+                this.setState({
+                    BUTTONS_EQPGROUP : ['none'],
+                    BUTTONS_EQP : ['none'],
+                })
+            }
+        }
+        else if(url.includes('getEqpGrpInfo'))
+        {
+            if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none')
+            {
+                swal(this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_EQPGROUP.current.handleData(response);
+                this.setState({
+                    BUTTONS_EQP : ['none'],
+                })
+            }
+        }
+        else if(url.includes('getEqpInfo'))
+        {
+            if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none' || this.state.BUTTONS_EQPGROUP == 'none')
+            {
+                swal( this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_EQP.current.handleData(response);
+            }
+        }
+
     }
 
-    //EQP Combo click
-    onClick_EQP = async () => {
-        if(this.state.BUTTONS_FAB == 'none' || this.state.BUTTONS_AREA == 'none' || this.state.BUTTONS_EQPGROUP == 'none')
+    //Combo_MODAL click
+    onClick_MODAL = async (url) => {
+    	const response = await axios.get(url)
+
+        if(url.includes('getFactory'))
         {
-            swal( this.state.swalOption3);
-        }
-        else
-        {
-            const response = await axios.get('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
-                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)
+            this.comboRef_FAB_MODAL.current.handleData(response);
             this.setState({
-                eqps : response.data
+                BUTTONS_AREA_MODAL : ['none'],
+                BUTTONS_EQPGROUP_MODAL : ['none'],
+                BUTTONS_EQP_MODAL : ['none'],
             })
         }
+        else if(url.includes('getAreaInfo'))
+        {
+            if(this.state.BUTTONS_FAB_MODAL == 'none')
+            {
+                swal( this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_AREA_MODAL.current.handleData(response);
+                this.setState({
+                    BUTTONS_EQPGROUP_MODAL : ['none'],
+                    BUTTONS_EQP_MODAL : ['none'],
+                })
+            }
+        }
+        else if(url.includes('getEqpGrpInfo'))
+        {
+            if(this.state.BUTTONS_FAB_MODAL == 'none' || this.state.BUTTONS_AREA_MODAL == 'none')
+            {
+                swal(this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_EQPGROUP_MODAL.current.handleData(response);
+                this.setState({
+                    BUTTONS_EQP_MODAL : ['none'],
+                })
+            }
+        }
+        else if(url.includes('getEqpInfo'))
+        {
+            if(this.state.BUTTONS_FAB_MODAL == 'none' || this.state.BUTTONS_AREA_MODAL == 'none' || this.state.BUTTONS_EQPGROUP_MODAL == 'none')
+            {
+                swal( this.state.swalOption3);
+            }
+            else
+            {
+                this.comboRef_EQP_MODAL.current.handleData(response);
+            }
+        }
+
     }
 
+    handleSelect_MODAL = (SelectedValue) =>  {
 
-    renderDropdown_FAB = (title, i) => {
+        let key = Object.keys(SelectedValue.data);
 
-        return (
-            <ButtonDropdown isOpen={this.state[`FAB${i}`]} toggle={() => this.toggle(`FAB${i}`)} key={ i } id={ `dropdown-FAB-${i}`} onClick={this.onClick_FAB} >
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                  {this.state.factorys.map((factory,index) => (<DropdownItem autosize={false} key={index} onClick={() => this.handleSelect_FAB({factory})} >{factory.FAB_ID}</DropdownItem>))}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
-    }
-
-    renderDropdown_AREA = (title, i) => {
-        return (
-            <ButtonDropdown isOpen={this.state[`AREA${i}`]} toggle={() => this.toggle(`AREA${i}`)} key={ i } id={ `dropdown-AREA-${i}`} title={'AREA'} onClick={this.onClick_AREA}>
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                {this.state.areas.map((area,index) => <DropdownItem key={index} onClick={() => this.handleSelect_AREA({area})} >{area.AREA_ID}</DropdownItem>)}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
-    }
-
-    renderDropdown_EQPGROUP = (title, i) => {
-        return (
-            <ButtonDropdown isOpen={this.state[`EQPGROUP${i}`]} toggle={() => this.toggle(`EQPGROUP${i}`)} key={ i } id={ `dropdown-EQPGROUP-${i}`} onClick={this.onClick_EQPGRP} >
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                {this.state.eqpgrps.map((eqpgrp,index) => <DropdownItem key={index} onClick={() => this.handleSelect_EQPGROUP({eqpgrp})} >{eqpgrp.EQP_GRP}</DropdownItem>)}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
-    }
-
-    renderDropdown_EQP = (title, i) => {
-        return (
-            <ButtonDropdown isOpen={this.state[`EQP${i}`]} toggle={() => this.toggle(`EQP${i}`)} key={ i } id={ `dropdown-EQP-${i}`} onClick={this.onClick_EQP}>
-                <DropdownToggle caret outline color='inverse'>
-                  {title}
-                </DropdownToggle>
-                <DropdownMenu>
-                {this.state.eqps.map((eqp,index) => <DropdownItem key={index} onClick={() => this.handleSelect_EQP({eqp})} >{eqp.EQP_ID}</DropdownItem>)}
-                </DropdownMenu>
-            </ButtonDropdown>
-        );
+        if(key == 'FAB_ID')
+        {
+            this.setState({
+                BUTTONS_FAB_MODAL : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='AREA_ID')
+        {
+            this.setState({
+                BUTTONS_AREA_MODAL: [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='EQP_GRP')
+        {
+            this.setState({
+                BUTTONS_EQPGROUP_MODAL : [SelectedValue.data[key]]
+            })
+        }
+        else if(key=='EQP_ID')
+        {
+            this.setState({
+                BUTTONS_EQP_MODAL : [SelectedValue.data[key]]
+            })
+        }
     }
 
     render() {
-        // const [users, setUsers] = [''];
-        // const CSS = '.content-wrapper div:not(.btn-group)>.btn, .btn-group { margin: 0 4px 4px 0 }'; // space for buttons demo
 
         return (
             <ContentWrapper>
                 <div className="content-heading">
                     <div>
-                        Scenario 조회
-                        {/* <small>Subtitle</small> */}
+                        Scenario 연결
                     </div>
                 </div>
-                {/* <Row>
-                   <Col lg={12}>
-                      <p>A row with content</p>
-                   </Col>
-                </Row> */}
                 <Row>
-                    <Col md={ 12 }>
+                <Col lg={12} md={12} sm={12}>
                         { /* START Card */ }
                         <CardWithHeader>
                             <FormGroup row>
-                                <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">FAB</label>
-                                        <ButtonToolbar>{ this.state.BUTTONS_FAB.map(this.renderDropdown_FAB) }</ButtonToolbar>
-                                    </div>
+                                <Col>
+                                    <Combo button={this.state.BUTTONS_FAB} name='FAB' handleSelect={this.handleSelect} ref={this.comboRef_FAB} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
                                 </Col>
-                                <Col lg={ 4 }>
-                                   <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">AREA</label>
-                                         <ButtonToolbar>{ this.state.BUTTONS_AREA.map(this.renderDropdown_AREA) }</ButtonToolbar>
-                                    </div>
+                                <Col>
+                                    <Combo button={this.state.BUTTONS_AREA} name='AREA' handleSelect={this.handleSelect} ref={this.comboRef_AREA} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB)}} defaultYN={false}></Combo>
                                 </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                 <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">EQP Group</label>
-                                        <ButtonToolbar>{ this.state.BUTTONS_EQPGROUP.map(this.renderDropdown_EQPGROUP) }</ButtonToolbar>
-                                    </div>
+                                <Col>
+                                    <Combo button={this.state.BUTTONS_EQPGROUP} name='EQP GRP' handleSelect={this.handleSelect} ref={this.comboRef_EQPGROUP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA)}} defaultYN={false}></Combo>
                                 </Col>
-                                <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
-                                        <i className="far fa-square"></i>
-                                        <label className="col-lg-3 col-form-label">EQP</label>
-                                        <ButtonToolbar>{ this.state.BUTTONS_EQP.map(this.renderDropdown_EQP) }</ButtonToolbar>
-                                    </div>
+                                <Col>
+                                    {/* <Combo button={this.state.BUTTONS_EQP} name='EQP' handleSelect={this.handleSelect} ref={this.comboRef_EQP} onClick={() => {this.onClick('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA
+                                            + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP)}} defaultYN={false}></Combo> */}
                                 </Col>
-                                <Col lg={ 4 }>
-                                    <div className="card-body d-flex align-items-center">
-                                        <ButtonToolbar><Button color="info" onClick={this.getSearchList}>Search</Button></ButtonToolbar>
+                                <Col lg={3} md={3} sm={3}>
+                                    <div className="d-flex align-items-center">
+                                        <ButtonToolbar><Button color="info" onClick={this.getSearchList}>조회</Button></ButtonToolbar>
+                                        <ButtonToolbar><Button color="info" onClick={this.Save}>저장</Button></ButtonToolbar>
+                                        <ButtonToolbar><Button color="info" onClick={this.Delete}>삭제</Button></ButtonToolbar>
+                                        <ButtonToolbar><Button color="info" onClick={this.toggleModal}>장비추가</Button></ButtonToolbar>
+                                        <Modal isOpen={this.state.modal} toggle={this.toggleModal}>
+                                            <ModalHeader toggle={this.toggleModal}>장비 List 추가</ModalHeader>
+                                            <ModalBody>
+                                                <FormGroup row>
+                                                    <Col>
+                                                        <Combo button={this.state.BUTTONS_FAB_MODAL} name='FAB' handleSelect={this.handleSelect_MODAL} ref={this.comboRef_FAB_MODAL} onClick={() => {this.onClick_MODAL('http://localhost:8080/MasterInfo/getFactoryInfo')}} defaultYN={false}></Combo>
+                                                    </Col>
+                                                </FormGroup>
+                                                <FormGroup row>
+                                                    <Col>
+                                                        <Combo button={this.state.BUTTONS_AREA_MODAL} name='AREA' handleSelect={this.handleSelect_MODAL} ref={this.comboRef_AREA_MODAL} onClick={() => {this.onClick_MODAL('http://localhost:8080/MasterInfo/getAreaInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB_MODAL)}} defaultYN={false}></Combo>
+                                                    </Col>
+                                                </FormGroup>
+                                                <FormGroup row>
+                                                    <Col>
+                                                        <Combo button={this.state.BUTTONS_EQPGROUP_MODAL} name='EQP GRP' handleSelect={this.handleSelect_MODAL} ref={this.comboRef_EQPGROUP_MODAL} onClick={() => {this.onClick_MODAL('http://localhost:8080/MasterInfo/getEqpGrpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB_MODAL + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA_MODAL)}} defaultYN={false}></Combo>
+                                                    </Col>
+                                                </FormGroup>
+                                                <FormGroup row>
+                                                    <Col>
+                                                        <Combo button={this.state.BUTTONS_EQP_MODAL} name='EQP' handleSelect={this.handleSelect_MODAL} ref={this.comboRef_EQP_MODAL} onClick={() => {this.onClick_MODAL('http://localhost:8080/MasterInfo/getEqpInfo?' + 'FAB_ID=' + this.state.BUTTONS_FAB_MODAL + '&' + 'AREA_ID=' + this.state.BUTTONS_AREA_MODAL
+                                                                + '&' +'EQP_GRP=' + this.state.BUTTONS_EQPGROUP_MODAL)}} defaultYN={false}></Combo>
+                                                    </Col>
+                                                </FormGroup>
+                                            </ModalBody>
+                                            <ModalFooter>
+                                                <Button color="primary" onClick={this.addEQP}>추가</Button>{' '}
+                                                <Button color="secondary" onClick={this.toggleModal}>취소</Button>
+                                            </ModalFooter>
+                                        </Modal>
                                     </div>
                                 </Col>
                             </FormGroup>
@@ -420,32 +732,90 @@ class SMapping extends Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col xl="8">
-                        <Card>
-                            <CardHeader><b>시나리오 List</b></CardHeader>
+                    <Col lg={5} md={5} sm={5}>
+                        <Card outline color="info" className="mb-3">
+                            <CardHeader className="text-white bg-info"><b>장비 List</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
-                                    name='test'
+                                    rowKey="id"
                                     onGridSort={this.handleGridSort}
-                                    columns={this.SCENARIO_LIST}
-                                    rowGetter={this.SCENARIOList_Getter}
-                                    onRowClick={this.onClickRow_SCENARIOLIST}
-                                    rowsCount={this.state.SCENARIOLIST.length}
-                                    rowClicked={this.onClickRow_SCENARIOLIST}
-                                    minHeight={700} />
+                                    columns={this.EQP_LIST}
+                                    enableRowSelect={'single'}
+                                    rowGetter={this.EQPLIST_Getter}
+                                    rowsCount={this.state.EQPLIST.length}
+                                    minHeight={765}
+                                    onRowSelect={this.onEQPLIST_RowsSelected}
+                                    onGridRowsUpdated={this.onGridRowsUpdated}
+                                    enableCellSelect={true}/>
                             </Container>
                         </Card>
                     </Col>
-                    <Col xl="4">
-                        <Card>
-                            <CardHeader><b>시나리오 Info</b></CardHeader>
+                    <Col lg={4} md={4} sm={4}>
+                        <Row>
+                            <Col lg={2} md={2} sm={2}>
+                                <Row className="align-items-center">
+                                    <div className="card-body d-flex">
+                                        <Button color="warning" onClick={this.addALARM} size="lg">
+                                                <i className="fa fa-arrow-left"></i>
+                                        </Button>
+                                    </div>
+                                </Row>
+                            </Col>
+                            <Col lg={10} md={10} sm={10}>
+                                <Card>
+                                        <CardHeader className="text-white bg-info"><b>Alarm List</b></CardHeader>
+                                        <Container fluid>
+                                            <ReactDataGrid
+                                                rowKey="ALARM_ID"
+                                                onGridSort={this.handleGridSort}
+                                                enableRowSelect={'single'}
+                                                columns={this.ALARM_LIST}
+                                                rowGetter={this.ALARMLIST_Getter}
+                                                rowsCount={this.state.ALARMLIST.length}
+                                                minHeight={350}
+                                                onRowSelect={this.onALARMLIST_RowsSelected} />
+                                        </Container>
+                                    </Card>
+                            </Col>
+                        </Row>
+                        <Row>
+                        <Col lg={2} md={2} sm={2}>
+                                <Row className="align-items-center">
+                                    <div className="card-body d-flex">
+                                        <Button color="warning" onClick={this.addSCNRO} size="lg">
+                                                <i className="fa fa-arrow-left"></i>
+                                        </Button>
+                                    </div>
+                                </Row>
+                            </Col>
+                            <Col lg={10} md={10} sm={10}>
+                                <Card outline color="info" className="mb-3">
+                                    <CardHeader className="text-white bg-info"><b>시나리오 List</b></CardHeader>
+                                    <Container fluid>
+                                        <ReactDataGrid
+                                            rowKey="SNRO_ID"
+                                            onGridSort={this.handleGridSort}
+                                            enableRowSelect={'single'}
+                                            columns={this.SCENARIO_LIST}
+                                            rowGetter={this.SCENARIOLIST_Getter}
+                                            rowsCount={this.state.SCENARIOLIST.length}
+                                            minHeight={350}
+                                            onRowSelect={this.onSCENARIOLIST_RowsSelected} />
+                                    </Container>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col lg={3} md={3} sm={3}>
+                        <Card outline color="info" className="mb-3">
+                            <CardHeader className="text-white bg-info"><b>Activity List</b></CardHeader>
                             <Container fluid>
                                 <ReactDataGrid
                                     onGridSort={this.handleGridSort}
-                                    columns={this.SCENARIO_Info}
-                                    rowGetter={this.SCENARIOInfo_Getter}
-                                    rowsCount={this.state.SCENARIOINFO.length}
-                                    minHeight={700} />
+                                    columns={this.ACTIVITY_LIST}
+                                    rowGetter={this.ACTIVITYLIST_Getter}
+                                    rowsCount={this.state.ACTIVITYLIST.length}
+                                    minHeight={765} />
                             </Container>
                         </Card>
                     </Col>

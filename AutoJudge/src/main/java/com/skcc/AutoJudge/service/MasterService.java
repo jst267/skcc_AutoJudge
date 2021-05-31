@@ -55,4 +55,17 @@ public class MasterService {
 		return eqpgrp;
 	}
 	
+	public List<Map<String, Object>> getAlarmInfo(String strFactroy, String strArea) {
+		
+		List<Map<String,Object>> alaramList = new ArrayList<Map<String, Object>>();
+		Map<String,Object> param = new HashMap<String,Object>();
+		
+		param.put("FAB_ID", strFactroy);
+		param.put("AREA_ID", strArea);
+		alaramList = masterDAO.getAlarmInfo(param);
+		
+		return alaramList;
+	}
+
+	
 }
