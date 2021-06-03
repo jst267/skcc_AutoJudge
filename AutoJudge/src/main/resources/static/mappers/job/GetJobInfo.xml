@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="GetJobInfo">
+	<select id="getJobList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT FAB_ID,
+		       AREA_ID,
+		       EQP_GRP,
+		       EQP_ID,
+		       ALARM_ID,
+		       SNRO_ID,
+		       JOB_ID,
+		       JOB_STATUS
+		       START_TM,
+		       END_TM		   
+		  FROM MAS_JOBRUNNING_INF
+	   	 WHERE FAB_ID = #{FAB_ID}
+		   AND AREA_ID = #{AREA_ID}
+		   AND EQP_GRP = #{EQP_GRP}
+		   AND EQP_ID = #{EQP_ID}
+		   AND ALARM_ID = #{ALARM_ID}
+		   AND SNRO_ID = #{SNRO_ID}
+	</select>
+	
+</mapper>

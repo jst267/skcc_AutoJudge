@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setJobInfo">
+	<insert id="setCreateJob_Insert" parameterType="java.util.HashMap">
+		INSERT INTO
+			MAS_JOBRUNNING_INF(FAB_ID,
+				AREA_ID,
+				EQP_GRP,
+				EQP_ID,
+				ALARM_ID,
+				SNRO_ID,
+				JOB_ID,
+				JOB_STATUS,
+				START_TM,
+				END_TM)
+			VALUES(#{FAB_ID},
+				#{AREA_ID},
+				#{EQP_GRP},
+				#{EQP_ID},
+				#{ALARM_ID},
+				#{SNRO_ID},
+				#{JOB_ID},
+				#{JOB_STATUS},
+				SYSDATE,
+				NULL)
+	</insert>
+	
+</mapper>
