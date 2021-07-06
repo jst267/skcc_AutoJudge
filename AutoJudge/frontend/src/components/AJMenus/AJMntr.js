@@ -41,6 +41,16 @@ class AJMntr extends Component {
             toTime : []
         };
 
+        this.comboRef_FAB = React.createRef()
+        this.comboRef_AREA = React.createRef()
+        this.comboRef_EQPGROUP = React.createRef()
+        this.comboRef_EQP = React.createRef()
+
+        this.comboRef_FAB_MODAL = React.createRef()
+        this.comboRef_AREA_MODAL = React.createRef()
+        this.comboRef_EQPGROUP_MODAL = React.createRef()
+        this.comboRef_EQP_MODAL = React.createRef()
+
         this.SCENARIO_LIST = [
             // {
             //     key: 'i',
@@ -179,6 +189,11 @@ class AJMntr extends Component {
         // }
 
         console.log(this.state.toTime);
+
+        const rScenario_Info = await axios.get('http://localhost:8080/JobInfo/getJobList?' + 'START_TM=' + this.state.toTime)
+
+
+
     }
 
     onClickRow_SCENARIOLIST = async(rowInfo) => {
@@ -215,30 +230,6 @@ class AJMntr extends Component {
         })
     }
 
-    handleSelect_FAB = SelectedValue =>  {
-        this.setState({
-            BUTTONS_FAB : [SelectedValue.factory.FAB_ID]
-        })
-    }
-
-    handleSelect_AREA = SelectedValue =>  {
-        this.setState({
-            BUTTONS_AREA : [SelectedValue.area.AREA_ID]
-        })
-    }
-
-    handleSelect_EQPGROUP = SelectedValue =>  {
-        this.setState({
-            BUTTONS_EQPGROUP : [SelectedValue.eqpgrp.EQP_GRP]
-        })
-    }
-
-    handleSelect_EQP = SelectedValue =>  {
-        this.setState({
-            BUTTONS_EQP : [SelectedValue.eqp.EQP_ID]
-        })
-    }
-
     onClick = async (url) => {
     	const response = await axios.get(url)
 
@@ -260,6 +251,7 @@ class AJMntr extends Component {
             else
             {
                 this.comboRef_AREA.current.handleData(response);
+                console.log(response);
                 this.setState({
                     BUTTONS_EQPGROUP : ['none'],
                     BUTTONS_EQP : ['none'],
