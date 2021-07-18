@@ -22,10 +22,10 @@
   </properties>
 
   <dependencies>
-    <dependency>
+    <!-- <dependency>
       <groupId>com.skcc</groupId>
       <artifactId>AutoJudge</artifactId>
       <version>0.0.1-SNAPSHOT</version>
-    </dependency>
+    </dependency> -->
   </dependencies>
 </project>

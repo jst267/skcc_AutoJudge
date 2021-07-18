@@ -278,29 +278,29 @@ class SMapping extends Component {
 
     Delete = async() => {
 
-        console.log(this.state.EQPLIST);
+        // console.log(this.state.EQPLIST);
 
-        // if(!this.state.EQPList_selectedRow[0].ALARM_ID || !this.state.EQPList_selectedRow[0].SNRO_ID || !this.state.EQPList_selectedRow[0].AUTO_FLAG)
-        // {
-        //     swal( this.state.swalOption_REQUIRED);
-        // }
-        // else
-        // {
-        //     const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/removeScenarioForEQP?'+ 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.EQPList_selectedRow[0].AREA_ID
-        //     + '&' + 'EQP_GRP=' + this.state.EQPList_selectedRow[0].EQP_GRP + '&' + 'EQP_ID=' + this.state.EQPList_selectedRow[0].EQP_ID + '&' + 'ALARM_ID=' + this.state.EQPList_selectedRow[0].ALARM_ID
-        //     + '&' + 'SNRO_ID=' + this.state.EQPList_selectedRow[0].SNRO_ID + '&' + 'AUTO_FLAG=' + this.state.EQPList_selectedRow[0].AUTO_FLAG)
+        if(!this.state.EQPList_selectedRow[0].ALARM_ID || !this.state.EQPList_selectedRow[0].SNRO_ID || !this.state.EQPList_selectedRow[0].AUTO_FLAG)
+        {
+            swal( this.state.swalOption_REQUIRED);
+        }
+        else
+        {
+            const isSuccess = await axios.get('http://localhost:8080/ScenarioInfo/removeScenarioForEQP?'+ 'FAB_ID=' + this.state.BUTTONS_FAB + '&' + 'AREA_ID=' + this.state.EQPList_selectedRow[0].AREA_ID
+            + '&' + 'EQP_GRP=' + this.state.EQPList_selectedRow[0].EQP_GRP + '&' + 'EQP_ID=' + this.state.EQPList_selectedRow[0].EQP_ID + '&' + 'ALARM_ID=' + this.state.EQPList_selectedRow[0].ALARM_ID
+            + '&' + 'SNRO_ID=' + this.state.EQPList_selectedRow[0].SNRO_ID + '&' + 'AUTO_FLAG=' + this.state.EQPList_selectedRow[0].AUTO_FLAG)
 
-        //     if(isSuccess.data)
-        //     {
-        //         swal("SUCCESS", {
-        //             icon: "success",
-        //         });
-        //     }
-        //     else
-        //     {
-        //         swal( this.state.swalOption_ERROR);
-        //     }
-        // }
+            // if(isSuccess.data)
+            // {
+                swal("SUCCESS", {
+                    icon: "success",
+                });
+            // }
+            // else
+            // {
+            //     swal( this.state.swalOption_ERROR);
+            // }
+        }
 
     }
 
